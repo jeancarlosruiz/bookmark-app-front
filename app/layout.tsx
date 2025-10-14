@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { StackProvider, StackTheme } from "@stackframe/stack";
+import { stackClientApp } from "../stack/client";
 import { Manrope } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/organisms/header";
@@ -20,7 +22,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${manropeSans.className} antialiased`}>{children}</body>
+      <body className={`${manropeSans.className} antialiased`}>
+        <StackProvider app={stackClientApp}>
+          <StackTheme>
+            <Header />
+            {children}
+          </StackTheme>
+        </StackProvider>
+      </body>
     </html>
   );
 }

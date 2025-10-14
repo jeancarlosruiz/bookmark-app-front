@@ -23,6 +23,7 @@
 ### Día 3
 [] Crear componentes atómicos: `Button`, `Input`, `Badge`, `Card`, `Tag`, `Modal`. (Corregir los colores, creo que estan mal)
 [] Implementar modo oscuro y claro.
+[] A la hora de hacer el login/sign up, hacerlo customizado y crear un endpoint del lado del backend para que se active y guarde al usuario.
 
 ### Día 4
 [] Crear Sidebar y Navbar funcionales.
