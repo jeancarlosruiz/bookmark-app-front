@@ -27,7 +27,7 @@ async function Header() {
               Sign Up
             </Link>
 
-              <Link href={app.signOut}>Sign out</Link>
+            <Link href={app.signOut}>Sign out</Link>
           </>
         )}
       </div>
