@@ -3,7 +3,6 @@ import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackClientApp } from "../stack/client";
 import { Manrope } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/organisms/header";
 
 const manropeSans = Manrope({
   variable: "--font-manrope-sans",
@@ -25,7 +24,6 @@ export default function RootLayout({
       <body className={`${manropeSans.className} antialiased`}>
         <StackProvider app={stackClientApp}>
           <StackTheme>
-            <Header />
             {children}
           </StackTheme>
         </StackProvider>
