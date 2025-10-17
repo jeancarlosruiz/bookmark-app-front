@@ -14,11 +14,14 @@ export default function Page() {
 
     const result = await app.signUpWithCredential(options);
 
-    console.log({ result });
+    console.log(result);
   };
 
   const handlerSignOAuth = async () => {
-    await app.signInWithOAuth("github", { returnTo: "/" });
+    const result = await app.signInWithOAuth("github", { returnTo: "/" });
+
+    console.log("Desde el github");
+    console.log(result);
   };
   return (
     <div>

@@ -11,7 +11,10 @@ async function Header() {
     <header>
       <div className="flex items-center gap-3">
         {user ? (
-          <div>Logeado</div>
+          <>
+            <div>Logeado</div>
+            <Link href={app.signOut}>Sign out</Link>
+          </>
         ) : (
           <>
             <Link
@@ -26,8 +29,6 @@ async function Header() {
             >
               Sign Up
             </Link>
-
-            <Link href={app.signOut}>Sign out</Link>
           </>
         )}
       </div>
