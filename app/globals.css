@@ -46,36 +46,30 @@
   --radius: 0.625rem;
 
   /* Neutral (Light Mode) */
-  --neutral-900: #051519;
+  --neutral-900: #051513;
   --neutral-800: #4c5659;
-  --neutral-700: #899492;
-  --neutral-600: #c0cfcf;
-  --neutral-500: #dddede;
-  --neutral-400: #e2e9e7;
-  --neutral-300: #f1f7f7;
-  --neutral-200: #f9fcfc;
-  --neutral-100: #ffffff;
+  --neutral-500: #899492;
+  --neutral-400: #cocfcf;
+  --neutral-300: #dde9e7;
+  --neutral-200: #e8f0ef;
   --neutral-0: #ffffff;
 
   /* Neutral (Dark Mode) */
   --neutral-900-dark: #001414;
-  --neutral-800-dark: #003f1f;
-  --neutral-700-dark: #026e2d;
-  --neutral-600-dark: #049241;
-  --neutral-500-dark: #069b4e;
-  --neutral-400-dark: #0da746;
-  --neutral-300-dark: #00b06e;
-  --neutral-200-dark: #81b899;
-  --neutral-100-dark: #d4e4d1;
-  --neutral-0-dark: #ffffff;
+  --neutral-800-dark: #001f1f;
+  --neutral-600-dark: #002e2d;
+  --neutral-500-dark: #004241;
+  --neutral-400-dark: #004746;
+  --neutral-300-dark: #00706e;
+  --neutral-100-dark: #b1b9b9;
 
   /* Teal */
-  --teal-900: #014745;
-  --teal-800: #019c8b;
+  --teal-800: #013c3b;
+  --teal-700: #014745;
 
   /* Red */
   --red-800: #cb0a04;
-  --red-600: #FD4740;
+  --red-600: #fd4740;
 
   /* Spacing Variables */
   --spacing-0: 0px;
