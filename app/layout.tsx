@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackClientApp } from "../stack/client";
 import { Manrope } from "next/font/google";
+import { Toaster } from "@/components/atoms/sonner";
 import "./globals.css";
 
 const manropeSans = Manrope({
@@ -25,6 +26,7 @@ export default function RootLayout({
         <StackProvider app={stackClientApp}>
           <StackTheme>
             {children}
+            <Toaster duration={100000} />
           </StackTheme>
         </StackProvider>
       </body>
