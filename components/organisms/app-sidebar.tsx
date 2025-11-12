@@ -6,10 +6,14 @@ import {
   SidebarHeader,
 } from "@/components/atoms/sidebar";
 
+import BookmarkLogo from "@/components/atoms/logo";
+
 export function AppSidebar() {
   return (
     <Sidebar>
-      <SidebarHeader>Aqui va el logo</SidebarHeader>
+      <SidebarHeader>
+        <BookmarkLogo />
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup />
         <SidebarGroup />
