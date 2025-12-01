@@ -43,15 +43,18 @@
 }
 
 :root {
+  --background: var(--neutral-100);
   --radius: 0.625rem;
+  --border: var(--neutral-100);
 
   /* Neutral (Light Mode) */
   --neutral-900: #051513;
   --neutral-800: #4c5659;
   --neutral-500: #899492;
-  --neutral-400: #cocfcf;
+  --neutral-400: #c0cfcc;
   --neutral-300: #dde9e7;
   --neutral-200: #e8f0ef;
+  --neutral-100: #e8f0ef;
   --neutral-0: #ffffff;
 
   /* Neutral (Dark Mode) */
@@ -73,36 +76,21 @@
 
   /* Spacing Variables */
   --spacing-0: 0px;
-  --spacing-50: 2px;
-  --spacing-100: 4px;
-  --spacing-150: 6px;
-  --spacing-200: 8px;
-  --spacing-250: 10px;
-  --spacing-300: 12px;
-  --spacing-350: 14px;
-  --spacing-400: 16px;
-  --spacing-450: 18px;
-  --spacing-500: 20px;
-  --spacing-550: 22px;
-  --spacing-600: 24px;
-  --spacing-650: 26px;
-  --spacing-700: 28px;
-  --spacing-750: 30px;
-  --spacing-800: 32px;
-  --spacing-850: 34px;
-  --spacing-900: 36px;
-  --spacing-950: 38px;
-  --spacing-1000: 40px;
-  --spacing-1050: 42px;
-  --spacing-1100: 44px;
-  --spacing-1150: 46px;
-  --spacing-1200: 48px;
-  --spacing-1250: 50px;
-  --spacing-1300: 52px;
-  --spacing-1350: 54px;
-  --spacing-1400: 56px;
-  --spacing-1450: 58px;
-  --spacing-1500: 60px;
+  --spacing-50: 4px;
+  --spacing-100: 8px;
+  --spacing-125: 10px;
+  --spacing-150: 12px;
+  --spacing-200: 16px;
+  --spacing-250: 20px;
+  --spacing-300: 24px;
+  --spacing-350: 28px;
+  --spacing-400: 32px;
+  --spacing-450: 36px;
+  --spacing-500: 40px;
+  --spacing-550: 44px;
+  --spacing-600: 48px;
+  --spacing-xxs: 2px;
+  --spacing-sm: 6px;
 
   /* Border Radius Variables */
   --radius-0: 0px;
@@ -118,6 +106,15 @@
 
   --logo-fill-dark: #051513;
   --logo-fill-light: #fff;
+
+  --sidebar: var(--neutral-0);
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #003f1f;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #049241;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: var(--neutral-100);
+  --sidebar-ring: #026e2d;
 }
 
 .dark {
@@ -137,7 +134,7 @@
   --accent: #049241;
   --accent-foreground: #ffffff;
   --destructive: #ff0740;
-  --border: rgba(255, 255, 255, 0.1);
+  --border: var(--neutral-600-dark);
   --input: rgba(255, 255, 255, 0.15);
   --ring: #026e2d;
   --chart-1: #003f1f;
@@ -151,7 +148,7 @@
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #049241;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-border: var(--neutral-100);
   --sidebar-ring: #026e2d;
 }
 

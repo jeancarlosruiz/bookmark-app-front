@@ -8,7 +8,7 @@ async function Header() {
   console.log({ user });
 
   return (
-    <header>
+    <header className="bg-[var(--neutral-0)]">
       <div className="flex items-center gap-3">
         {user ? (
           <>
