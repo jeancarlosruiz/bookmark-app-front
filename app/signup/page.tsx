@@ -1,33 +1,11 @@
 "use client";
-import { Button } from "@/components/atoms/button";
-import { useStackApp } from "@stackframe/stack";
+
+import { SignupForm } from "@/components/organisms/signup-form";
 
 export default function Page() {
-  const app = useStackApp();
-  const handlerSignup = async () => {
-    console.log("Primero esto");
-
-    const options = {
-      email: "jean@dev.com",
-      password: "12345678",
-    };
-
-    const result = await app.signUpWithCredential(options);
-
-    console.log(result);
-  };
-
-  const handlerSignOAuth = async () => {
-    const result = await app.signInWithOAuth("github", { returnTo: "/" });
-
-    console.log("Desde el github");
-    console.log(result);
-  };
   return (
-    <div>
-      <h1>Custom signup in page</h1>
-      <Button onClick={handlerSignOAuth}>Sign up with GitHub</Button>
-      <Button onClick={handlerSignup}>Sign up with credentials</Button>
+    <div className="min-h-screen bg-[var(--neutral-100,#e8f0ef)] dark:bg-[var(--neutral-900-dark,#001414)] flex items-center justify-center p-4">
+      <SignupForm />
     </div>
   );
 }
