@@ -2,48 +2,23 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useStackApp } from "@stackframe/stack";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { FormHeader } from "@/components/molecules/form-header";
+import { useActionState, useEffect } from "react";
+import { login } from "@/actions/auth";
 
-export interface LoginFormProps {
-  className?: string;
-}
+const initialState: any = {
+  status: "idle",
+  errors: {},
+  data: null,
+};
 
-const LoginForm = ({ className }: LoginFormProps) => {
-  const app = useStackApp();
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      await app.signInWithCredential({ email, password });
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to sign in. Please try again.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+const LoginForm = () => {
+  const [state, formAction, isPending] = useActionState(login, initialState);
 
   return (
-    <div
-      className={cn(
-        "bg-[var(--neutral-0,#ffffff)] dark:bg-[var(--neutral-800-dark,#001f1f)] flex flex-col gap-[var(--spacing-400,32px)] px-[var(--spacing-400,32px)] py-[var(--spacing-500,40px)] rounded-[var(--radius-12,12px)] shadow-[0px_2px_4px_0px_rgba(21,21,21,0.06)] w-full max-w-[448px]",
-        className,
-      )}
-    >
+    <div className="bg-[var(--neutral-0,#ffffff)] dark:bg-[var(--neutral-800-dark,#001f1f)] flex flex-col gap-[var(--spacing-400,32px)] px-[var(--spacing-400,32px)] py-[var(--spacing-500,40px)] rounded-[var(--radius-12,12px)] shadow-[0px_2px_4px_0px_rgba(21,21,21,0.06)] w-full max-w-[448px]">
       {/* Logo */}
       <div className="flex gap-[8px] items-center">
         <div className="relative w-8 h-8 overflow-hidden shrink-0">
@@ -81,37 +56,25 @@ const LoginForm = ({ className }: LoginFormProps) => {
 
       {/* Form Fields */}
       <form
-        onSubmit={handleSubmit}
+        action={formAction}
         className="flex flex-col gap-[var(--spacing-200,16px)] w-full"
       >
         <Input
           label="Email"
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
           required
-          error={error ? true : false}
         />
 
         <Input
           label="Password"
           type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your password"
           required
-          error={error ? error : false}
         />
 
-        <Button
-          type="submit"
-          hierarchy="primary"
-          size="md"
-          disabled={isLoading}
-          className="w-full"
-        >
-          {isLoading ? "Logging in..." : "Log in"}
+        <Button type="submit" hierarchy="primary" size="md" className="w-full">
+          {isPending ? "Logging in..." : "Log in"}
         </Button>
       </form>
 

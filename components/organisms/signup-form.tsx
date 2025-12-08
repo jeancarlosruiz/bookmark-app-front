@@ -2,49 +2,23 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useStackApp } from "@stackframe/stack";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { FormHeader } from "@/components/molecules/form-header";
+import { useActionState, useEffect } from "react";
+import { signup } from "@/actions/auth";
 
-export interface SignupFormProps {
-  className?: string;
-}
+const initialState: any = {
+  status: "idle",
+  errors: {},
+  data: null,
+};
 
-const SignupForm = ({ className }: SignupFormProps) => {
-  const app = useStackApp();
-  const [fullName, setFullName] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      await app.signUpWithCredential({ email, password });
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to create account. Please try again.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+const SignupForm = () => {
+  const [state, formAction, isPending] = useActionState(signup, initialState);
 
   return (
-    <div
-      className={cn(
-        "bg-[var(--neutral-0,#ffffff)] dark:bg-[var(--neutral-800-dark,#001f1f)] flex flex-col gap-[var(--spacing-400,32px)] px-[var(--spacing-400,32px)] py-[var(--spacing-500,40px)] rounded-[var(--radius-12,12px)] shadow-[0px_2px_4px_0px_rgba(21,21,21,0.06)] w-full max-w-[448px]",
-        className,
-      )}
-    >
+    <div className="bg-[var(--neutral-0,#ffffff)] dark:bg-[var(--neutral-800-dark,#001f1f)] flex flex-col gap-[var(--spacing-400,32px)] px-[var(--spacing-400,32px)] py-[var(--spacing-500,40px)] rounded-[var(--radius-12,12px)] shadow-[0px_2px_4px_0px_rgba(21,21,21,0.06)] w-full max-w-[448px]">
       {/* Logo */}
       <div className="flex gap-[8px] items-center">
         <div className="relative w-8 h-8 overflow-hidden shrink-0">
@@ -82,47 +56,32 @@ const SignupForm = ({ className }: SignupFormProps) => {
 
       {/* Form Fields */}
       <form
-        onSubmit={handleSubmit}
+        action={formAction}
         className="flex flex-col gap-[var(--spacing-200,16px)] w-full"
       >
         <Input
           label="Full name"
           type="text"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
           placeholder="Enter your full name"
           required
-          error={error ? true : false}
         />
 
         <Input
           label="Email address"
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
           required
-          error={error ? true : false}
         />
 
         <Input
           label="Password"
           type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your password"
           required
-          error={error ? error : false}
         />
 
-        <Button
-          type="submit"
-          hierarchy="primary"
-          size="md"
-          disabled={isLoading}
-          className="w-full"
-        >
-          {isLoading ? "Creating account..." : "Create account"}
+        <Button type="submit" hierarchy="primary" size="md" className="w-full">
+          {isPending ? "Creating account..." : "Create account"}
         </Button>
       </form>
 
