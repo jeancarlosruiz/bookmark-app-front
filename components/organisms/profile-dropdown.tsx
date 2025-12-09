@@ -13,6 +13,7 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/atoms/avatar";
 import { ProfileDropdownHeader } from "@/components/molecules/profile-dropdown-header";
 import { ThemeToggle } from "@/components/atoms/theme-toggle";
+import { useUser } from "@stackframe/stack";
 
 export interface ProfileDropdownProps {
   userName: string;
@@ -35,8 +36,9 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
       currentTheme = "light",
       className,
     },
-    ref
+    ref,
   ) => {
+    const user = useUser();
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -54,7 +56,7 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
           ref={ref}
           className={cn(
             "bg-white dark:bg-[var(--neutral-800-dark,#001f1f)] border border-[var(--neutral-100,#e8f0ef)] dark:border-[var(--neutral-600-dark,#002e2d)] flex flex-col gap-[var(--spacing-050,4px)] items-start overflow-hidden rounded-[8px] shadow-[0px_6px_14px_0px_rgba(34,38,39,0.1)] w-[248px] p-0",
-            className
+            className,
           )}
           sideOffset={5}
           align="end"
@@ -73,7 +75,7 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
                 "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
                 "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
                 "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
-                "cursor-default"
+                "cursor-default",
               )}
               onSelect={(e) => {
                 e.preventDefault();
@@ -86,10 +88,7 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
               <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-left text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
                 Theme
               </span>
-              <ThemeToggle
-                theme={currentTheme}
-                onThemeChange={onThemeChange}
-              />
+              <ThemeToggle theme={currentTheme} onThemeChange={onThemeChange} />
             </DropdownMenuItem>
           </div>
 
@@ -102,9 +101,9 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
               className={cn(
                 "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
                 "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
-                "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]"
+                "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
               )}
-              onClick={onLogout}
+              onClick={() => user?.signOut()}
             >
               <LogOut
                 className="size-[12.8px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
@@ -118,7 +117,7 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
         </DropdownMenuContent>
       </DropdownMenu>
     );
-  }
+  },
 );
 
 ProfileDropdown.displayName = "ProfileDropdown";
