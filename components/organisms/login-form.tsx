@@ -5,21 +5,26 @@ import Link from "next/link";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { FormHeader } from "@/components/molecules/form-header";
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 import { login } from "@/actions/auth";
 
 const initialState: any = {
   status: "idle",
   errors: {},
   data: null,
+  fields: {
+    email: "",
+    password: "",
+  },
 };
 
 const LoginForm = () => {
   const [state, formAction, isPending] = useActionState(login, initialState);
+  const isError = state.status === "error";
+  const invalidCredentialError =
+    state.errors?.name === "KnownError<EMAIL_PASSWORD_MISMATCH>";
 
-  useEffect(() => {
-    console.log(state);
-  }, [state]);
+  console.log({ state });
 
   return (
     <div className="bg-[var(--neutral-0,#ffffff)] dark:bg-[var(--neutral-800-dark,#001f1f)] flex flex-col gap-[var(--spacing-400,32px)] px-[var(--spacing-400,32px)] py-[var(--spacing-500,40px)] rounded-[var(--radius-12,12px)] shadow-[0px_2px_4px_0px_rgba(21,21,21,0.06)] w-full max-w-[448px]">
@@ -66,16 +71,26 @@ const LoginForm = () => {
         <Input
           label="Email"
           type="email"
+          name="email"
           placeholder="Enter your email"
           required
+          error={isError && state.errors.email}
+          hintText={state.errors.email}
         />
 
         <Input
           label="Password"
           type="password"
+          name="password"
           placeholder="Enter your password"
           required
+          error={isError && state.errors.password}
+          hintText={state.errors.password}
         />
+
+        {invalidCredentialError && (
+          <p className="text-red-600 text-sm">{state.errors.message}</p>
+        )}
 
         <Button type="submit" hierarchy="primary" size="md" className="w-full">
           {isPending ? "Logging in..." : "Log in"}
