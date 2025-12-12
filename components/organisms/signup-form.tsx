@@ -12,10 +12,16 @@ const initialState: any = {
   status: "idle",
   errors: {},
   data: null,
+  fields: {
+    name: "",
+    email: "",
+    password: "",
+  },
 };
 
 const SignupForm = () => {
   const [state, formAction, isPending] = useActionState(signup, initialState);
+  const isError = state.status === "error";
 
   return (
     <div className="bg-[var(--neutral-0,#ffffff)] dark:bg-[var(--neutral-800-dark,#001f1f)] flex flex-col gap-[var(--spacing-400,32px)] px-[var(--spacing-400,32px)] py-[var(--spacing-500,40px)] rounded-[var(--radius-12,12px)] shadow-[0px_2px_4px_0px_rgba(21,21,21,0.06)] w-full max-w-[448px]">
@@ -62,22 +68,31 @@ const SignupForm = () => {
         <Input
           label="Full name"
           type="text"
+          name="name"
           placeholder="Enter your full name"
           required
+          error={isError && state.errors.name}
+          hintText={state.errors.name}
         />
 
         <Input
           label="Email address"
           type="email"
+          name="email"
           placeholder="Enter your email"
           required
+          error={isError && state.errors.email}
+          hintText={state.errors.email}
         />
 
         <Input
           label="Password"
           type="password"
+          name="password"
           placeholder="Enter your password"
           required
+          error={isError && state.errors.password}
+          hintText={state.errors.password}
         />
 
         <Button type="submit" hierarchy="primary" size="md" className="w-full">
