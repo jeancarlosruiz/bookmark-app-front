@@ -74,6 +74,7 @@ const LoginForm = () => {
           name="email"
           placeholder="Enter your email"
           required
+          defaultValue={state.fields.email}
           error={isError && state.errors.email}
           hintText={state.errors.email}
         />
@@ -82,6 +83,7 @@ const LoginForm = () => {
           label="Password"
           type="password"
           name="password"
+          defaultValue={state.fields.password}
           placeholder="Enter your password"
           required
           error={isError && state.errors.password}
