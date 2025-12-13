@@ -80,9 +80,9 @@ const BookmarkCard = React.forwardRef<HTMLDivElement, BookmarkCardProps>(
           </p>
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-[var(--spacing-100,8px)] items-start w-full">
+          <div className="flex gap-[var(--spacing-100,8px)] items-start w-full overflow-x-auto scrollbar-hide">
             {tags.map((tag, index) => (
-              <Tag key={index}>{tag}</Tag>
+              <Tag key={index} className="flex-shrink-0">{tag}</Tag>
             ))}
           </div>
         </div>

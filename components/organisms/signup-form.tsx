@@ -5,13 +5,12 @@ import Link from "next/link";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { FormHeader } from "@/components/molecules/form-header";
-import { useActionState, useEffect } from "react";
-import { signup } from "@/actions/auth";
+import { useActionState } from "react";
+import { signup, SIGNUP_FORM_STATE } from "@/actions/auth";
 
-const initialState: any = {
+const initialState: SIGNUP_FORM_STATE = {
   status: "idle",
-  errors: {},
-  data: null,
+  errors: null,
   fields: {
     name: "",
     email: "",
@@ -71,8 +70,8 @@ const SignupForm = () => {
           name="name"
           placeholder="Enter your full name"
           required
-          error={isError && state.errors.name}
-          hintText={state.errors.name}
+          error={isError && state.errors?.name}
+          hintText={state.errors?.name}
         />
 
         <Input
@@ -81,8 +80,8 @@ const SignupForm = () => {
           name="email"
           placeholder="Enter your email"
           required
-          error={isError && state.errors.email}
-          hintText={state.errors.email}
+          error={isError && state.errors?.email}
+          hintText={state.errors?.email}
         />
 
         <Input
@@ -91,8 +90,8 @@ const SignupForm = () => {
           name="password"
           placeholder="Enter your password"
           required
-          error={isError && state.errors.password}
-          hintText={state.errors.password}
+          error={isError && state.errors?.password}
+          hintText={state.errors?.password}
         />
 
         <Button type="submit" hierarchy="primary" size="md" className="w-full">

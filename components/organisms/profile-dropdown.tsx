@@ -19,25 +19,12 @@ export interface ProfileDropdownProps {
   userName: string;
   userEmail: string;
   userAvatar?: string;
-  onLogout?: () => void;
-  onThemeChange?: (theme: "light" | "dark") => void;
   currentTheme?: "light" | "dark";
   className?: string;
 }
 
 const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
-  (
-    {
-      userName,
-      userEmail,
-      userAvatar,
-      onLogout,
-      onThemeChange,
-      currentTheme = "light",
-      className,
-    },
-    ref,
-  ) => {
+  ({ userName, userEmail, userAvatar, className }, ref) => {
     const user = useUser();
     return (
       <DropdownMenu>
@@ -82,13 +69,13 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
               }}
             >
               <Palette
-                className="size-[12.8px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+                className="size-[16px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
                 strokeWidth={2}
               />
               <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-left text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
                 Theme
               </span>
-              <ThemeToggle theme={currentTheme} onThemeChange={onThemeChange} />
+              <ThemeToggle />
             </DropdownMenuItem>
           </div>
 
@@ -106,7 +93,7 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
               onClick={() => user?.signOut()}
             >
               <LogOut
-                className="size-[12.8px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+                className="size-[16px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
                 strokeWidth={2}
               />
               <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-left text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">

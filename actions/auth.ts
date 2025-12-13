@@ -4,7 +4,19 @@ import { stackServerApp } from "@/stack/server";
 import { LOGIN_SCHEMA, SIGNUP_SCHEMA } from "@/lib/zod/auth";
 import { zodFlattenError } from "@/lib/zod/utils";
 
-export const login = async (_: any, formData: FormData) => {
+export type SIGNIN_FORM_STATE = {
+  status: "idle" | "pending" | "success" | "error";
+  errors?: Record<string, string> | null;
+  fields?: {
+    email: string;
+    password: string;
+  };
+};
+
+export const login = async (
+  _: any,
+  formData: FormData,
+): Promise<SIGNIN_FORM_STATE> => {
   const email = formData.get("email") as string;
   const signin_password = formData.get("password") as string;
 
@@ -18,10 +30,9 @@ export const login = async (_: any, formData: FormData) => {
 
     return {
       status: "error",
-      data: null,
       errors: {
-        email: flattenedErrors.fieldErrors.email?.[0] || null,
-        password: flattenedErrors.fieldErrors.signin_password?.[0] || null,
+        email: flattenedErrors.fieldErrors.email?.[0] || "",
+        password: flattenedErrors.fieldErrors.signin_password?.[0] || "",
       },
       fields: {
         email,
@@ -36,10 +47,13 @@ export const login = async (_: any, formData: FormData) => {
   });
 
   if (result.status === "error") {
+    console.log(result.error);
     return {
       status: "error",
-      data: null,
-      errors: result.error,
+      errors: {
+        name: result.error.name,
+        general: result.error.message,
+      },
       fields: {
         email,
         password: signin_password,
@@ -49,7 +63,6 @@ export const login = async (_: any, formData: FormData) => {
 
   return {
     status: "success",
-    data: null,
     errors: null,
     fields: {
       email: "",
@@ -58,7 +71,20 @@ export const login = async (_: any, formData: FormData) => {
   };
 };
 
-export const signup = async (_: any, formData: FormData) => {
+export type SIGNUP_FORM_STATE = {
+  status: "idle" | "pending" | "success" | "error";
+  errors?: Record<string, string> | null;
+  fields?: {
+    name: string;
+    email: string;
+    password: string;
+  };
+};
+
+export const signup = async (
+  _: any,
+  formData: FormData,
+): Promise<SIGNUP_FORM_STATE> => {
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const signup_password = formData.get("password") as string;
@@ -75,11 +101,10 @@ export const signup = async (_: any, formData: FormData) => {
 
     return {
       status: "error",
-      data: null,
       errors: {
-        name: flattenedErrors.fieldErrors.name?.[0] || null,
-        email: flattenedErrors.fieldErrors.email?.[0] || null,
-        password: flattenedErrors.fieldErrors.signup_password?.[0] || null,
+        name: flattenedErrors.fieldErrors.name?.[0] || "",
+        email: flattenedErrors.fieldErrors.email?.[0] || "",
+        password: flattenedErrors.fieldErrors.signup_password?.[0] || "",
       },
       fields: {
         name,
@@ -98,8 +123,9 @@ export const signup = async (_: any, formData: FormData) => {
   if (result.status === "error") {
     return {
       status: "error",
-      data: null,
-      errors: result.error,
+      errors: {
+        general: result.error.message,
+      },
       fields: {
         name,
         email,
@@ -110,7 +136,6 @@ export const signup = async (_: any, formData: FormData) => {
 
   return {
     status: "success",
-    data: null,
     errors: null,
     fields: {
       name: "",

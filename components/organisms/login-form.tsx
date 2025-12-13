@@ -6,12 +6,11 @@ import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { FormHeader } from "@/components/molecules/form-header";
 import { useActionState } from "react";
-import { login } from "@/actions/auth";
+import { login, SIGNIN_FORM_STATE } from "@/actions/auth";
 
-const initialState: any = {
+const initialState: SIGNIN_FORM_STATE = {
   status: "idle",
-  errors: {},
-  data: null,
+  errors: null,
   fields: {
     email: "",
     password: "",
@@ -23,8 +22,6 @@ const LoginForm = () => {
   const isError = state.status === "error";
   const invalidCredentialError =
     state.errors?.name === "KnownError<EMAIL_PASSWORD_MISMATCH>";
-
-  console.log({ state });
 
   return (
     <div className="bg-[var(--neutral-0,#ffffff)] dark:bg-[var(--neutral-800-dark,#001f1f)] flex flex-col gap-[var(--spacing-400,32px)] px-[var(--spacing-400,32px)] py-[var(--spacing-500,40px)] rounded-[var(--radius-12,12px)] shadow-[0px_2px_4px_0px_rgba(21,21,21,0.06)] w-full max-w-[448px]">
@@ -74,24 +71,24 @@ const LoginForm = () => {
           name="email"
           placeholder="Enter your email"
           required
-          defaultValue={state.fields.email}
-          error={isError && state.errors.email}
-          hintText={state.errors.email}
+          defaultValue={state.fields?.email}
+          error={isError && state.errors?.email}
+          hintText={state.errors?.email}
         />
 
         <Input
           label="Password"
           type="password"
           name="password"
-          defaultValue={state.fields.password}
+          defaultValue={state.fields?.password}
           placeholder="Enter your password"
           required
-          error={isError && state.errors.password}
-          hintText={state.errors.password}
+          error={isError && state.errors?.password}
+          hintText={state.errors?.password}
         />
 
         {invalidCredentialError && (
-          <p className="text-red-600 text-sm">{state.errors.message}</p>
+          <p className="text-red-600 text-sm">{state.errors?.message}</p>
         )}
 
         <Button type="submit" hierarchy="primary" size="md" className="w-full">
@@ -106,7 +103,7 @@ const LoginForm = () => {
             Forgot password?
           </p>
           <Link
-            href="/reset-password"
+            href="/forgot-password"
             className="font-semibold leading-[1.4] text-[var(--neutral-900,#051513)] dark:text-white hover:underline"
           >
             Reset it
@@ -115,7 +112,7 @@ const LoginForm = () => {
 
         <div className="flex gap-[var(--spacing-sm,6px)] items-baseline justify-center text-[14px] whitespace-pre">
           <p className="font-medium leading-[1.5] tracking-[0.14px] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
-            Don't have an account?
+            Don&apos;t have an account?
           </p>
           <Link
             href="/signup"

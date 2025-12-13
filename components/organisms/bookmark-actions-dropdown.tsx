@@ -39,19 +39,6 @@ const BookmarkActionsDropdown = React.forwardRef<
   const onUnarchive = () => {};
   const onDelete = () => {};
 
-  const handleVisit = (url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
-
-  const handleCopyUrl = async (url: string, title: string) => {
-    try {
-      await navigator.clipboard.writeText(url);
-      console.log(`URL copied for ${title}`);
-    } catch (err) {
-      console.error("Failed to copy URL:", err);
-    }
-  };
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>

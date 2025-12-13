@@ -3,6 +3,7 @@ import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackClientApp } from "../stack/client";
 import { Manrope } from "next/font/google";
 import { Toaster } from "@/components/atoms/sonner";
+import { ThemeProvider } from "@/components/atoms/theme-provider";
 import "./globals.css";
 
 const manropeSans = Manrope({
@@ -21,14 +22,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${manropeSans.className} antialiased`}>
-        <StackProvider app={stackClientApp}>
-          <StackTheme>
-            {children}
-            <Toaster duration={100000} />
-          </StackTheme>
-        </StackProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          enableColorScheme
+        >
+          <StackProvider app={stackClientApp}>
+            <StackTheme>
+              {children}
+              <Toaster duration={100000} />
+            </StackTheme>
+          </StackProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

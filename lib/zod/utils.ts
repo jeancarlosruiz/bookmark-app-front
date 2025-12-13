@@ -1,5 +1,5 @@
 import z, { ZodError } from "zod";
 
-export const zodFlattenError = (zodError: ZodError) => {
+export const zodFlattenError = <T>(zodError: ZodError<T>) => {
   return z.flattenError(zodError);
 };
