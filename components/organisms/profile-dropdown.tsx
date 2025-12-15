@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Palette, LogOut } from "lucide-react";
+import { Palette, LogOut, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -14,26 +14,38 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/atoms/avatar";
 import { ProfileDropdownHeader } from "@/components/molecules/profile-dropdown-header";
 import { ThemeToggle } from "@/components/atoms/theme-toggle";
 import { useUser } from "@stackframe/stack";
+import data from "@/data.json";
+import Link from "next/link";
 
 export interface ProfileDropdownProps {
-  userName: string;
-  userEmail: string;
-  userAvatar?: string;
-  currentTheme?: "light" | "dark";
   className?: string;
 }
 
 const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
-  ({ userName, userEmail, userAvatar, className }, ref) => {
+  ({ className }, ref) => {
     const user = useUser();
+    const isAuthenticated = !!user;
+    const userInfo = isAuthenticated
+      ? {
+          displayName: user.displayName,
+          primaryEmail: user.primaryEmail,
+          primaryImageUrl: user.profileImageUrl,
+        }
+      : data.user;
+    const logoutFn = () => user?.signOut();
+
+    console.log("profile", user);
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="cursor-pointer outline-none focus:outline-none">
             <Avatar className="size-10">
-              <AvatarImage src={userAvatar} alt={userName} />
+              <AvatarImage
+                src={userInfo.primaryImageUrl!}
+                alt={userInfo.displayName! ?? ""}
+              />
               <AvatarFallback className="bg-[var(--neutral-300,#dde9e7)] dark:bg-[var(--neutral-600-dark,#002e2d)] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] font-semibold text-[14px]">
-                {userName.charAt(0).toUpperCase()}
+                {userInfo.displayName!.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </button>
@@ -50,9 +62,9 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
         >
           {/* Header */}
           <ProfileDropdownHeader
-            name={userName}
-            email={userEmail}
-            avatar={userAvatar}
+            name={userInfo.displayName!}
+            email={userInfo.primaryEmail!}
+            avatar={userInfo.primaryImageUrl!}
           />
 
           {/* Menu items */}
@@ -84,22 +96,43 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
 
           {/* Footer */}
           <div className="flex flex-col items-start px-[var(--spacing-100,8px)] py-[var(--spacing-050,4px)] w-full">
-            <DropdownMenuItem
-              className={cn(
-                "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
-                "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
-                "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
-              )}
-              onClick={() => user?.signOut()}
-            >
-              <LogOut
-                className="size-[16px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
-                strokeWidth={2}
-              />
-              <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-left text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
-                Logout
-              </span>
-            </DropdownMenuItem>
+            {isAuthenticated ? (
+              <DropdownMenuItem
+                className={cn(
+                  "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
+                  "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
+                  "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
+                )}
+                onClick={logoutFn}
+              >
+                <LogOut
+                  className="size-[16px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+                  strokeWidth={2}
+                />
+                <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-left text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
+                  Logout
+                </span>
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem
+                asChild
+                className={cn(
+                  "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
+                  "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
+                  "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
+                )}
+              >
+                <Link href="/signin">
+                  <LogIn
+                    className="size-[16px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+                    strokeWidth={2}
+                  />
+                  <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-left text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
+                    Sign in
+                  </span>
+                </Link>
+              </DropdownMenuItem>
+            )}
           </div>
         </DropdownMenuContent>
       </DropdownMenu>

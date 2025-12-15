@@ -5,12 +5,12 @@ import { AppHeader } from "@/components/organisms/app-header";
 import { BookmarkListHeader } from "@/components/organisms/bookmark-list-header";
 import { BookmarkCard } from "@/components/organisms/bookmark-card";
 import bookmarksData from "@/data.json";
-import { stackServerApp } from "@/stack/server";
+// import { stackServerApp } from "@/stack/server";
 
 export default async function Home() {
-  const user = await stackServerApp.getUser();
+  // const user = await stackServerApp.getUser();
 
-  console.log(user);
+  // console.log(user);
   return (
     <SidebarProvider>
       <AppSidebar />

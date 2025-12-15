@@ -46,6 +46,8 @@ export const login = async (
     password: signin_password,
   });
 
+  console.log({ result });
+
   if (result.status === "error") {
     console.log(result.error);
     return {
@@ -89,22 +91,55 @@ export const signup = async (
   const email = formData.get("email") as string;
   const signup_password = formData.get("password") as string;
 
-  const formParsed = await SIGNUP_SCHEMA.safeParseAsync({
-    name,
-    email,
-    password: signup_password,
-  });
+  try {
+    const formParsed = await SIGNUP_SCHEMA.safeParseAsync({
+      name,
+      email,
+      signup_password,
+    });
 
-  if (!formParsed.success) {
-    // Use z.flattenError to get a proper error structure
-    const flattenedErrors = zodFlattenError(formParsed.error);
+    console.log({ formParsed });
 
+    if (!formParsed.success) {
+      // Use z.flattenError to get a proper error structure
+      const flattenedErrors = zodFlattenError(formParsed.error);
+
+      return {
+        status: "error",
+        errors: {
+          name: flattenedErrors.fieldErrors.name?.[0] || "",
+          email: flattenedErrors.fieldErrors.email?.[0] || "",
+          password: flattenedErrors.fieldErrors.signup_password?.[0] || "",
+        },
+        fields: {
+          name,
+          email,
+          password: signup_password,
+        },
+      };
+    }
+
+    await stackServerApp.createUser({
+      displayName: name,
+      primaryEmail: email,
+      password: signup_password,
+    });
+
+    return {
+      status: "success",
+      errors: null,
+      fields: {
+        name: "",
+        email: "",
+        password: "",
+      },
+    };
+  } catch (error) {
+    console.log({ error });
     return {
       status: "error",
       errors: {
-        name: flattenedErrors.fieldErrors.name?.[0] || "",
-        email: flattenedErrors.fieldErrors.email?.[0] || "",
-        password: flattenedErrors.fieldErrors.signup_password?.[0] || "",
+        general: error?.message ? error?.message : error,
       },
       fields: {
         name,
@@ -113,34 +148,4 @@ export const signup = async (
       },
     };
   }
-
-  const result = await stackServerApp.signUpWithCredential({
-    email,
-    password: signup_password,
-    verificationCallbackUrl: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/`,
-  });
-
-  if (result.status === "error") {
-    return {
-      status: "error",
-      errors: {
-        general: result.error.message,
-      },
-      fields: {
-        name,
-        email,
-        password: signup_password,
-      },
-    };
-  }
-
-  return {
-    status: "success",
-    errors: null,
-    fields: {
-      name: "",
-      email: "",
-      password: "",
-    },
-  };
 };

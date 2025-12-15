@@ -18,7 +18,7 @@ const ProfileDropdownHeader = React.forwardRef<
       ref={ref}
       className={cn(
         "border-b border-[var(--neutral-300,#dde9e7)] dark:border-[var(--neutral-600-dark,#002e2d)] flex flex-col items-start px-[var(--spacing-xl,16px)] py-[var(--spacing-lg,12px)] w-full",
-        className
+        className,
       )}
     >
       <div className="flex gap-[var(--spacing-lg,12px)] items-center w-full">

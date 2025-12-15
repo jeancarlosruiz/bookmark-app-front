@@ -11,24 +11,11 @@ import { useSidebar } from "@/components/atoms/sidebar";
 export interface AppHeaderProps {
   onAddBookmark?: () => void;
   onSearch?: (query: string) => void;
-  userAvatar?: string;
-  userName?: string;
-  userEmail?: string;
   className?: string;
 }
 
 const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
-  (
-    {
-      onAddBookmark,
-      onSearch,
-      userAvatar,
-      userName = "User",
-      userEmail = "user@example.com",
-      className,
-    },
-    ref,
-  ) => {
+  ({ onAddBookmark, onSearch, className }, ref) => {
     const [searchQuery, setSearchQuery] = React.useState("");
     const { toggleSidebar, isMobile } = useSidebar();
 
@@ -83,11 +70,7 @@ const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
             {isMobile ? <Plus className="size-5" /> : "Add Bookmark"}
           </Button>
 
-          <ProfileDropdown
-            userName={userName}
-            userEmail={userEmail}
-            userAvatar={userAvatar}
-          />
+          <ProfileDropdown />
         </div>
       </header>
     );

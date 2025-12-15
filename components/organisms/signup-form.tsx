@@ -22,6 +22,8 @@ const SignupForm = () => {
   const [state, formAction, isPending] = useActionState(signup, initialState);
   const isError = state.status === "error";
 
+  console.log({ state });
+
   return (
     <div className="bg-[var(--neutral-0,#ffffff)] dark:bg-[var(--neutral-800-dark,#001f1f)] flex flex-col gap-[var(--spacing-400,32px)] px-[var(--spacing-400,32px)] py-[var(--spacing-500,40px)] rounded-[var(--radius-12,12px)] shadow-[0px_2px_4px_0px_rgba(21,21,21,0.06)] w-full max-w-[448px]">
       {/* Logo */}
@@ -65,11 +67,12 @@ const SignupForm = () => {
         className="flex flex-col gap-[var(--spacing-200,16px)] w-full"
       >
         <Input
-          label="Full name"
+          label="name"
           type="text"
           name="name"
-          placeholder="Enter your full name"
+          placeholder="Enter your name"
           required
+          defaultValue={state.fields?.name}
           error={isError && state.errors?.name}
           hintText={state.errors?.name}
         />
@@ -80,6 +83,7 @@ const SignupForm = () => {
           name="email"
           placeholder="Enter your email"
           required
+          defaultValue={state.fields?.email}
           error={isError && state.errors?.email}
           hintText={state.errors?.email}
         />
@@ -90,6 +94,7 @@ const SignupForm = () => {
           name="password"
           placeholder="Enter your password"
           required
+          defaultValue={state.fields?.password}
           error={isError && state.errors?.password}
           hintText={state.errors?.password}
         />

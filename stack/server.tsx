@@ -10,5 +10,6 @@ export const stackServerApp = new StackServerApp({
     signOut: "/",
     afterSignIn: "/",
     afterSignOut: "/signin",
+    emailVerification: "http://localhost:3001/",
   },
 });

@@ -1,4 +1,9 @@
 {
+  "user": {
+    "displayName": "Emily Carter",
+    "primaryEmail": "emily101@gmail.com",
+    "primaryImageUrl": "/images/image-avatar.webp"
+  },
   "bookmarks": [
     {
       "id": "bm-001",
