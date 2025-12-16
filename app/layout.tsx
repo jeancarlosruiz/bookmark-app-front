@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
-import { StackProvider, StackTheme } from "@stackframe/stack";
-import { stackClientApp } from "../stack/client";
 import { Manrope } from "next/font/google";
 import { Toaster } from "@/components/atoms/sonner";
 import { ThemeProvider } from "@/components/atoms/theme-provider";
+import { authClient } from "@/lib/auth/client";
+import {
+  NeonAuthUIProvider,
+  UserButton,
+} from "@neondatabase/neon-js/auth/react/ui";
 import "./globals.css";
 
 const manropeSans = Manrope({
@@ -24,19 +27,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${manropeSans.className} antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          enableColorScheme
-        >
-          <StackProvider app={stackClientApp}>
-            <StackTheme>
-              {children}
-              <Toaster duration={100000} />
-            </StackTheme>
-          </StackProvider>
-        </ThemeProvider>
+        <NeonAuthUIProvider authClient={authClient} emailOTP>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            enableColorScheme
+          >
+            {children}
+            <Toaster duration={100000} />
+          </ThemeProvider>
+        </NeonAuthUIProvider>
       </body>
     </html>
   );

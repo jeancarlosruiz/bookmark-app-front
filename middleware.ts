@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stackServerApp } from "./stack/server";
 
 const publicRoutes = ["/signin", "/signup"];
 
@@ -11,9 +10,7 @@ export default async function middleware(req: NextRequest) {
     console.log(`[Middleware] ${req.method} ${pathname}`);
   }
 
-  const user = await stackServerApp.getUser();
-
-  const isAuthenticated = !!user;
+  const isAuthenticated = !!true;
   // const isAuthenticated = true;
 
   const isAuthRoutes = publicRoutes.some((route) => route === pathname);

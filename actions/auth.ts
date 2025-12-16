@@ -1,6 +1,5 @@
 "use server";
 
-import { stackServerApp } from "@/stack/server";
 import { LOGIN_SCHEMA, SIGNUP_SCHEMA } from "@/lib/zod/auth";
 import { zodFlattenError } from "@/lib/zod/utils";
 

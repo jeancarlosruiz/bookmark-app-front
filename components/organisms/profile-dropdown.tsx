@@ -13,7 +13,6 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/atoms/avatar";
 import { ProfileDropdownHeader } from "@/components/molecules/profile-dropdown-header";
 import { ThemeToggle } from "@/components/atoms/theme-toggle";
-import { useUser } from "@stackframe/stack";
 import data from "@/data.json";
 import Link from "next/link";
 
@@ -23,7 +22,7 @@ export interface ProfileDropdownProps {
 
 const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
   ({ className }, ref) => {
-    const user = useUser();
+    const user = null;
     const isAuthenticated = !!user;
     const userInfo = isAuthenticated
       ? {
@@ -32,9 +31,9 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
           primaryImageUrl: user.profileImageUrl,
         }
       : data.user;
+
     const logoutFn = () => user?.signOut();
 
-    console.log("profile", user);
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
