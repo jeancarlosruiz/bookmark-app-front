@@ -2,6 +2,8 @@
 
 import { LOGIN_SCHEMA, SIGNUP_SCHEMA } from "@/lib/zod/auth";
 import { zodFlattenError } from "@/lib/zod/utils";
+import { redirect } from "next/navigation";
+import { authService } from "@/lib/dal/auth";
 
 export type SIGNIN_FORM_STATE = {
   status: "idle" | "pending" | "success" | "error";
@@ -40,20 +42,31 @@ export const login = async (
     };
   }
 
-  const result = await stackServerApp.signInWithCredential({
-    email,
-    password: signin_password,
-  });
+  try {
+    await authService.signIn({
+      email,
+      password: signin_password,
+    });
 
-  console.log({ result });
+    return {
+      status: "success",
+      errors: null,
+      fields: {
+        email: "",
+        password: "",
+      },
+    };
+  } catch (error) {
+    // Capturar excepciones inesperadas
+    console.error("Unexpected login error:", error);
 
-  if (result.status === "error") {
-    console.log(result.error);
     return {
       status: "error",
       errors: {
-        name: result.error.name,
-        general: result.error.message,
+        general:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred. Please try again.",
       },
       fields: {
         email,
@@ -61,15 +74,6 @@ export const login = async (
       },
     };
   }
-
-  return {
-    status: "success",
-    errors: null,
-    fields: {
-      email: "",
-      password: "",
-    },
-  };
 };
 
 export type SIGNUP_FORM_STATE = {
@@ -90,37 +94,35 @@ export const signup = async (
   const email = formData.get("email") as string;
   const signup_password = formData.get("password") as string;
 
+  // Validación con Zod
+  const formParsed = await SIGNUP_SCHEMA.safeParseAsync({
+    name,
+    email,
+    signup_password,
+  });
+
+  if (!formParsed.success) {
+    const flattenedErrors = zodFlattenError(formParsed.error);
+
+    return {
+      status: "error",
+      errors: {
+        name: flattenedErrors.fieldErrors.name?.[0] || "",
+        email: flattenedErrors.fieldErrors.email?.[0] || "",
+        password: flattenedErrors.fieldErrors.signup_password?.[0] || "",
+      },
+      fields: {
+        name,
+        email,
+        password: signup_password,
+      },
+    };
+  }
+
   try {
-    const formParsed = await SIGNUP_SCHEMA.safeParseAsync({
+    await authService.signUp({
       name,
       email,
-      signup_password,
-    });
-
-    console.log({ formParsed });
-
-    if (!formParsed.success) {
-      // Use z.flattenError to get a proper error structure
-      const flattenedErrors = zodFlattenError(formParsed.error);
-
-      return {
-        status: "error",
-        errors: {
-          name: flattenedErrors.fieldErrors.name?.[0] || "",
-          email: flattenedErrors.fieldErrors.email?.[0] || "",
-          password: flattenedErrors.fieldErrors.signup_password?.[0] || "",
-        },
-        fields: {
-          name,
-          email,
-          password: signup_password,
-        },
-      };
-    }
-
-    await stackServerApp.createUser({
-      displayName: name,
-      primaryEmail: email,
       password: signup_password,
     });
 
@@ -134,11 +136,16 @@ export const signup = async (
       },
     };
   } catch (error) {
-    console.log({ error });
+    // Capturar excepciones inesperadas
+    console.error("Unexpected signup error:", error);
+
     return {
       status: "error",
       errors: {
-        general: error?.message ? error?.message : error,
+        general:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred during registration.",
       },
       fields: {
         name,
@@ -147,4 +154,9 @@ export const signup = async (
       },
     };
   }
+};
+
+export const logout = async () => {
+  await authService.signOut();
+  redirect("/signin");
 };

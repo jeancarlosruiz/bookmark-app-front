@@ -1,6 +1,4 @@
-"use client";
-
-import { SignupForm } from "@/components/organisms/signup-form";
+import SignupForm from "@/components/organisms/signup-form";
 
 export default function Page() {
   return (

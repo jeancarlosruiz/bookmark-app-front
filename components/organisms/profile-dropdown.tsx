@@ -15,6 +15,8 @@ import { ProfileDropdownHeader } from "@/components/molecules/profile-dropdown-h
 import { ThemeToggle } from "@/components/atoms/theme-toggle";
 import data from "@/data.json";
 import Link from "next/link";
+import { logout } from "@/actions/auth";
+import { useSession } from "@/lib/auth/client";
 
 export interface ProfileDropdownProps {
   className?: string;
@@ -22,17 +24,26 @@ export interface ProfileDropdownProps {
 
 const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
   ({ className }, ref) => {
-    const user = null;
-    const isAuthenticated = !!user;
-    const userInfo = isAuthenticated
-      ? {
-          displayName: user.displayName,
-          primaryEmail: user.primaryEmail,
-          primaryImageUrl: user.profileImageUrl,
-        }
-      : data.user;
+    const { data: session, isPending } = useSession();
 
-    const logoutFn = () => user?.signOut();
+    const isAuthenticated = !!session?.user;
+
+    // Obtener info del usuario desde la sesión o usar data.json como fallback
+    const userInfo =
+      isAuthenticated && session?.user
+        ? {
+            displayName: session.user.name || session.user.email || "User",
+            primaryEmail: session.user.email || "",
+            primaryImageUrl: session.user.image || data.user.primaryImageUrl,
+          }
+        : data.user;
+
+    // Mostrar un estado de loading mientras se carga la sesión
+    if (isPending) {
+      return (
+        <div className="size-10 rounded-full bg-[var(--neutral-300,#dde9e7)] dark:bg-[var(--neutral-600-dark,#002e2d)] animate-pulse" />
+      );
+    }
 
     return (
       <DropdownMenu>
@@ -102,7 +113,7 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
                   "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
                   "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
                 )}
-                onClick={logoutFn}
+                onClick={logout}
               >
                 <LogOut
                   className="size-[16px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"

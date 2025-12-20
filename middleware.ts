@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth/auth";
 
 const publicRoutes = ["/signin", "/signup"];
 
@@ -10,29 +11,24 @@ export default async function middleware(req: NextRequest) {
     console.log(`[Middleware] ${req.method} ${pathname}`);
   }
 
-  const isAuthenticated = !!true;
-  // const isAuthenticated = true;
-
-  const isAuthRoutes = publicRoutes.some((route) => route === pathname);
-
-  if (isAuthenticated && isAuthRoutes) {
-    return NextResponse.redirect(new URL("/", req.url));
-  }
-
-  console.log("Middleware alert", {
-    user: isAuthenticated,
+  const session = await auth.api.getSession({
+    headers: req.headers,
   });
+
+  const isAuthenticated = !!session?.user;
+
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
     /*
      * Ejecutar middleware en todas las rutas EXCEPTO:
-     * - API routes internos de Next.js (_next)
-     * - Archivos estáticos (imágenes, fuentes, etc.)
-     * - Archivos en /public
+     * - API routes (/api/*)
+     * - Archivos estáticos (_next/static, _next/image)
+     * - Archivos de imagen (svg, png, jpg, etc.)
      * - favicon.ico
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };
