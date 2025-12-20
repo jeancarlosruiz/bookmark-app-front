@@ -16,7 +16,7 @@ import { ThemeToggle } from "@/components/atoms/theme-toggle";
 import data from "@/data.json";
 import Link from "next/link";
 import { logout } from "@/actions/auth";
-import { useSession } from "@/lib/auth/client";
+import { useSession } from "@/lib/auth/better-auth-client";
 
 export interface ProfileDropdownProps {
   className?: string;

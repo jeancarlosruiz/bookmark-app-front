@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth/auth";
+import { authService } from "./lib/dal/auth";
 
-const publicRoutes = ["/signin", "/signup"];
+const publicRoutes = [
+  "/signin",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+];
 
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -11,11 +16,28 @@ export default async function middleware(req: NextRequest) {
     console.log(`[Middleware] ${req.method} ${pathname}`);
   }
 
-  const session = await auth.api.getSession({
-    headers: req.headers,
-  });
+  const session = await authService.hasUserCookies(req);
+  const isPublicRoute = publicRoutes.some((r) => pathname.startsWith(r));
+  const isAuthenticated = !!session;
 
-  const isAuthenticated = !!session?.user;
+  if (isDev) {
+    console.log({ pathname, isPublicRoute, isAuthenticated: !!session });
+  }
+
+  // If it's a public route
+  if (isPublicRoute) {
+    // Redirect authenticated users away from auth pages
+    if (isAuthenticated) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+    // Allow unauthenticated users to access public routes
+    return NextResponse.next();
+  }
+
+  // All other routes require authentication
+  if (!isAuthenticated) {
+    return NextResponse.redirect(new URL("/signin", req.url));
+  }
 
   return NextResponse.next();
 }

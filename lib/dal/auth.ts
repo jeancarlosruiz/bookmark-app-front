@@ -1,9 +1,11 @@
 import { headers } from "next/headers";
-import { auth } from "../auth/auth";
+import { auth } from "../auth/better-auth";
+import { getSessionCookie } from "better-auth/cookies";
+import { NextRequest } from "next/server";
 
 export const authService = {
   async signIn({ email, password }: { email: string; password: string }) {
-    await auth.api.signInEmail({
+    return await auth.api.signInEmail({
       body: {
         email,
         password,
@@ -21,7 +23,7 @@ export const authService = {
     email: string;
     password: string;
   }) {
-    await auth.api.signUpEmail({
+    return await auth.api.signUpEmail({
       body: {
         name,
         email,
@@ -35,5 +37,41 @@ export const authService = {
     await auth.api.signOut({
       headers: await headers(),
     });
+  },
+
+  async forgotPassword({ email }: { email: string }) {
+    return await auth.api.requestPasswordReset({
+      body: {
+        email,
+        redirectTo: "/reset-password",
+      },
+      headers: await headers(),
+    });
+  },
+
+  async resetPassword({
+    newPassword,
+    token,
+  }: {
+    newPassword: string;
+    token: string;
+  }) {
+    return await auth.api.resetPassword({
+      body: {
+        newPassword,
+        token,
+      },
+      headers: await headers(),
+    });
+  },
+
+  async getCurrentUser() {
+    return await auth.api.getSession({
+      headers: await headers(),
+    });
+  },
+
+  async hasUserCookies(req: NextRequest) {
+    return getSessionCookie(req);
   },
 };

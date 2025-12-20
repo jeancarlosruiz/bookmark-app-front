@@ -23,3 +23,25 @@ export const LOGIN_SCHEMA = AUTH_SCHEMA.pick({
 export const SIGNUP_SCHEMA = AUTH_SCHEMA.omit({
   signin_password: true,
 });
+
+export const FORGOT_PASSWORD_SCHEMA = z.object({
+  email: z
+    .string({ error: "Email is required" })
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
+});
+
+export const RESET_PASSWORD_SCHEMA = z
+  .object({
+    password: z
+      .string({ error: "Password is required" })
+      .min(1, "Password is required")
+      .min(8, "Password must be at least 8 characters"),
+    confirmPassword: z
+      .string({ error: "Please confirm your password" })
+      .min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });

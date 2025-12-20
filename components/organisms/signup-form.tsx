@@ -49,7 +49,7 @@ const SignupForm = () => {
         className="flex flex-col gap-[var(--spacing-200,16px)] w-full"
       >
         <Input
-          label="name"
+          label="Name"
           type="text"
           name="name"
           placeholder="Enter your name"

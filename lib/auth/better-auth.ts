@@ -3,6 +3,10 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
+import {
+  sendVerificationEmail,
+  sendPasswordResetEmail,
+} from "@/lib/email/resend";
 
 if (!process.env.BETTER_AUTH_SECRET) {
   throw new Error(
@@ -26,10 +30,18 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false,
+    requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
-      // TODO: Implement email sending
-      console.log(`Password reset URL for ${user.email}: ${url}`);
+      // Void the promise to prevent timing attacks
+      void sendPasswordResetEmail(user.email, url, user.name || undefined);
+    },
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      // Void the promise to prevent timing attacks
+      void sendVerificationEmail(user.email, url, user.name || undefined);
     },
   },
 
@@ -40,10 +52,6 @@ export const auth = betterAuth({
       enabled: true,
       maxAge: 5 * 60, // 5 minutes
     },
-  },
-
-  advanced: {
-    // generateId: () => crypto.randomUUID(),
   },
 
   plugins: [
