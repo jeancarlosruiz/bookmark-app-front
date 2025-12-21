@@ -26,8 +26,6 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
   ({ className }, ref) => {
     const { data: session, isPending } = useSession();
 
-    console.log({ session });
-
     const isAuthenticated = !!session?.user;
 
     // Obtener info del usuario desde la sesión o usar data.json como fallback

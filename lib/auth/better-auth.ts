@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { anonymous } from "better-auth/plugins";
+import { anonymous, jwt } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { db } from "@/lib/db";
@@ -10,9 +10,7 @@ import {
 } from "@/lib/email/resend";
 
 if (!process.env.BETTER_AUTH_SECRET) {
-  throw new Error(
-    "BETTER_AUTH_SECRET is required. This should match JWT_SECRET in your GO backend.",
-  );
+  throw new Error("BETTER_AUTH_SECRET is required for session encryption.");
 }
 
 export const auth = betterAuth({
@@ -23,6 +21,7 @@ export const auth = betterAuth({
       session: schema.session,
       account: schema.account,
       verification: schema.verification,
+      jwks: schema.jwks,
     },
   }),
   account: {
@@ -71,6 +70,24 @@ export const auth = betterAuth({
 
   plugins: [
     anonymous(),
+    jwt({
+      jwks: {
+        keyPairConfig: {
+          alg: "EdDSA",
+          crv: "Ed25519",
+        },
+        rotationInterval: 60 * 60 * 24 * 30, // 30 days
+        gracePeriod: 60 * 60 * 24 * 7, // 7 days for key transition
+      },
+      jwt: {
+        expirationTime: "7d", // Match session expiration
+        definePayload: ({ user }) => ({
+          user_id: user.id, // Backend Go expects this claim
+          email: user.email,
+          name: user.name,
+        }),
+      },
+    }),
     nextCookies(), // IMPORTANT: Must be the last plugin
   ],
 });

@@ -84,6 +84,14 @@ export const authService = {
     });
   },
 
+  async getUserToken() {
+    const { token } = await auth.api.getToken({
+      headers: await headers(),
+    });
+
+    return token;
+  },
+
   async hasUserCookies(req: NextRequest) {
     return getSessionCookie(req);
   },
