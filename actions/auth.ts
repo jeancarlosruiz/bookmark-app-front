@@ -9,6 +9,7 @@ import {
 import { zodFlattenError } from "@/lib/zod/utils";
 import { redirect } from "next/navigation";
 import { authService } from "@/lib/dal/auth";
+import { signInGoogleClient } from "@/lib/auth/better-auth-client";
 
 export type SIGNIN_FORM_STATE = {
   status: "idle" | "pending" | "success" | "error";
@@ -309,4 +310,8 @@ export const resetPassword = async (
       },
     };
   }
+};
+
+export const loginAnonymous = async () => {
+  await authService.signInAnonymous();
 };

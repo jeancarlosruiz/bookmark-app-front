@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { anonymous } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { db } from "@/lib/db";
@@ -24,6 +25,20 @@ export const auth = betterAuth({
       verification: schema.verification,
     },
   }),
+  account: {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ["email-password", "google"],
+      allowDifferentEmails: true, // Allow linking accounts with different emails
+    },
+  },
+  socialProviders: {
+    google: {
+      prompt: "select_account",
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    },
+  },
 
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL,
@@ -55,6 +70,7 @@ export const auth = betterAuth({
   },
 
   plugins: [
+    anonymous(),
     nextCookies(), // IMPORTANT: Must be the last plugin
   ],
 });

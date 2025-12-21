@@ -65,6 +65,19 @@ export const authService = {
     });
   },
 
+  async signInAnonymous() {
+    return await auth.api.signInAnonymous();
+  },
+
+  async signInGoogleProvider() {
+    return await auth.api.signInSocial({
+      body: {
+        provider: "google",
+      },
+      headers: await headers(),
+    });
+  },
+
   async getCurrentUser() {
     return await auth.api.getSession({
       headers: await headers(),
