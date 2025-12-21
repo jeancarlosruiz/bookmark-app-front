@@ -6,23 +6,10 @@ import { BookmarkCardFooter } from "@/components/molecules/bookmark-card-footer"
 import { Tag } from "@/components/atoms/tag";
 import { IconButton } from "@/components/atoms/icon-button";
 import { BookmarkActionsDropdown } from "@/components/organisms/bookmark-actions-dropdown";
-
-type BookmarkInfo = {
-  id: string;
-  title: string;
-  url: string;
-  favicon: string;
-  description: string;
-  tags: string[];
-  pinned: boolean;
-  isArchived: boolean;
-  visitCount: number;
-  createdAt: string;
-  lastVisited: string | null;
-};
+import { BookmarkType } from "@/lib/zod/bookmark";
 
 export interface BookmarkCardProps {
-  bookmark: BookmarkInfo;
+  bookmark: BookmarkType;
   className?: string;
 }
 
@@ -81,8 +68,10 @@ const BookmarkCard = React.forwardRef<HTMLDivElement, BookmarkCardProps>(
 
           {/* Tags */}
           <div className="flex gap-[var(--spacing-100,8px)] items-start w-full overflow-x-auto scrollbar-hide">
-            {tags.map((tag, index) => (
-              <Tag key={index} className="flex-shrink-0">{tag}</Tag>
+            {tags.map((tag) => (
+              <Tag key={tag.id} className="flex-shrink-0">
+                {tag.title}
+              </Tag>
             ))}
           </div>
         </div>
