@@ -4,7 +4,7 @@ import VerificationEmail from "@/emails/verification-email";
 import ResetPasswordEmail from "@/emails/reset-password-email";
 
 // Initialize Resend with API key
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export interface SendEmailOptions {
   to: string;
