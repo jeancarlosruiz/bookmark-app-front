@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **bookmark manager app** challenge from Frontend Mentor, built as a full-stack application with Next.js 15, React 19, and Stack Auth for authentication. The app allows users to manage bookmarks with features like search, filtering by tags, archiving, pinning, and theme switching.
+This is a **bookmark manager app** challenge from Frontend Mentor, built as a full-stack application with Next.js 15, React 19, and Better Auth for authentication. The app allows users to manage bookmarks with features like search, filtering by tags, archiving, pinning, and theme switching.
 
 ## Tech Stack
 
@@ -13,11 +13,13 @@ This is a **bookmark manager app** challenge from Frontend Mentor, built as a fu
 - **TypeScript**: 5.x
 - **Styling**: Tailwind CSS 4.x with PostCSS
 - **UI Components**: Radix UI primitives + shadcn/ui (new-york style)
-- **Authentication**: Stack Auth (@stackframe/stack) 2.8.41
+- **Authentication**: Better Auth 1.4.7 with Google OAuth, email/password, and anonymous mode
+- **Database**: PostgreSQL (Neon) with Drizzle ORM 0.45.1
 - **Icons**: Lucide React
 - **Theming**: next-themes with light/dark mode support
 - **Validation**: Zod 4.1.13
 - **Toast Notifications**: Sonner
+- **Email**: React Email with Resend
 
 ## Development Commands
 
@@ -33,62 +35,128 @@ npm start
 
 # Run ESLint
 npm run lint
+
+# Database commands (Drizzle Kit)
+npm run db:generate    # Generate migrations from schema changes
+npm run db:migrate     # Run migrations
+npm run db:push        # Push schema directly to database (dev only)
+npm run db:studio      # Open Drizzle Studio (database GUI)
+
+# Email preview
+npm run email:preview  # Preview email templates in development
 ```
 
 ## Architecture
 
-### Authentication System (Stack Auth)
+### Authentication System (Better Auth)
 
-**Dual Configuration Pattern** - The app uses separate client/server Stack Auth instances:
+**Server-First Architecture** - Better Auth uses a unified server configuration with client bindings:
 
-- **Client** (`stack/client.tsx`): For client components, provides `useStackApp()` hook
-  - Methods: `signInWithCredential()`, `signUpWithCredential()`, `signInWithOAuth()`
-  - Token storage: NextJS cookies
+**Server** (`lib/auth/better-auth.ts`):
+- Primary auth instance configured with `betterAuth()`
+- Database adapter: Drizzle ORM with PostgreSQL
+- Plugins: `anonymous()`, `jwt()` (EdDSA keys with JWKS rotation), `nextCookies()`
+- Social providers: Google OAuth
+- Email/password with verification required
+- Session expiry: 7 days with 1-day update age
+- Cookie cache: 5 minutes
 
-- **Server** (`stack/server.tsx`): For server components, marked with `"use server-only"`
-  - Usage: `await stackServerApp.getUser()` or `await stackServerApp.getUser({ or: "redirect" })`
-  - Provides automatic redirect when user is not authenticated
+**Client** (`lib/auth/better-auth-client.ts`):
+- Client bindings created with `createAuthClient()`
+- Must be marked with `"use client"`
+- Provides `useSession()` hook and OAuth methods
+- Methods: `authClient.signIn.social()`, `authClient.signUp.email()`, etc.
+
+**Data Access Layer** (`lib/dal/auth.ts`):
+- Centralized auth service for server actions
+- Methods: `signIn()`, `signUp()`, `signOut()`, `getCurrentUser()`, `getUserToken()`, etc.
+- Always uses `headers()` from next/headers for request context
 
 **Environment Variables Required:**
 ```env
-NEXT_PUBLIC_STACK_PROJECT_ID='...'
-NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY='...'
-STACK_SECRET_SERVER_KEY='...'
+# Better Auth
+BETTER_AUTH_SECRET='...'             # Required for session encryption
+BETTER_AUTH_URL='http://localhost:3000'
+NEXT_PUBLIC_BETTER_AUTH_URL='http://localhost:3000'
+
+# Google OAuth
+GOOGLE_CLIENT_ID='...'
+GOOGLE_CLIENT_SECRET='...'
+
+# Database (Neon PostgreSQL)
+DATABASE_URL='postgresql://...'
+
+# Email (Resend)
+RESEND_API_KEY='...'
 ```
 
-**Security Note**: Always implement defense-in-depth by verifying authentication in both middleware AND page components. Do not rely solely on middleware for route protection (CVE-2025-29927 mitigation).
+**Middleware Protection** (`middleware.ts`):
+- Public routes: `/signin`, `/signup`, `/forgot-password`, `/reset-password`
+- All other routes require authentication via `authService.hasUserCookies()`
+- Authenticated users redirected away from auth pages
+- Excludes: `/api/auth/*`, static files, images
+
+### Database Schema (Drizzle ORM)
+
+**Schema Location**: `lib/db/schema.ts`
+
+**Better Auth Tables** (automatically managed):
+- `user`: Core user data with `id`, `name`, `email`, `emailVerified`, `isAnonymous`
+- `session`: Session tokens with expiration, IP tracking, user agent
+- `account`: OAuth and email/password credentials with refresh tokens
+- `verification`: Email verification tokens
+- `jwks`: JWT signing keys for rotation
+
+**Drizzle Configuration** (`drizzle.config.ts`):
+- Migrations output: `lib/db/migrations/`
+- Dialect: PostgreSQL
+- Indexes on `userId` for performance
 
 ### Provider Hierarchy (app/layout.tsx)
 
-The app has a specific provider nesting order that must be maintained:
+**Current Setup** (simplified, no auth provider needed):
 
 ```tsx
-<ThemeProvider>          // next-themes for dark mode
-  <StackProvider>        // Stack Auth context
-    <StackTheme>         // Stack Auth UI theming
-      {children}
-      <Toaster />        // Sonner toast notifications
-    </StackTheme>
-  </StackProvider>
+<ThemeProvider>          // next-themes for dark/light mode
+  {children}
+  <Toaster />            // Sonner toast notifications
 </ThemeProvider>
 ```
+
+Note: Better Auth does not require a React context provider. Authentication state is managed via cookies and the Data Access Layer.
 
 ### Component Architecture (Atomic Design)
 
 Components are organized by complexity:
 
-- **atoms/**: Single-purpose primitives (Button, Input, Separator, etc.)
+- **atoms/**: Single-purpose primitives (Button, Input, Separator, Sonner, etc.)
   - Button uses CVA (Class Variance Authority) for variants
+  - Most atoms are Radix UI wrappers from shadcn/ui
   - Sidebar is complex: includes Provider, Context, mobile drawer support, keyboard shortcuts (Cmd/Ctrl+B)
 
 - **molecules/**: Composed components (SearchBar, etc.)
   - SearchBar: Custom component with icon, uses CSS variables for theming
 
-- **organisms/**: Complex composite components (AppSidebar, Header)
-  - Header: Server component that checks auth state via `stackServerApp.getUser()`
+- **organisms/**: Complex composite components (AppSidebar, Header, etc.)
 
-- **pages/**: Page-level components (currently empty)
-- **templates/**: Layout templates (currently empty)
+- **pages/**: Page-level components
+- **templates/**: Layout templates
+
+### Data Access Layer Pattern
+
+**Location**: `lib/dal/`
+
+The app uses a centralized Data Access Layer for server-side operations:
+
+- `auth.ts`: Authentication operations (signIn, signUp, getCurrentUser, etc.)
+- `bookmark.ts`: Bookmark CRUD operations
+- `http-client.ts`: HTTP client with error handling for external APIs
+
+**Server Actions** (`actions/`):
+- `auth.ts`: Auth-related server actions
+- `bookmarks.ts`: Bookmark server actions that call `bookmarkService`
+
+Pattern: Server actions call DAL services, which handle business logic and data fetching.
 
 ### Styling System
 
@@ -118,9 +186,20 @@ className={cn("base-classes", conditionalClass && "conditional", className)}
 All imports use `@/` prefix:
 ```tsx
 import { Button } from "@/components/atoms/button"
-import { stackServerApp } from "@/stack/server"
+import { authService } from "@/lib/dal/auth"
 import { cn } from "@/lib/utils"
 ```
+
+### Validation with Zod
+
+**Schema Location**: `lib/zod/`
+
+Zod schemas are centralized for:
+- Authentication forms (`auth.ts`)
+- Bookmark operations
+- Type inference and runtime validation
+
+Pattern: Define schemas in `lib/zod/`, import in server actions and components.
 
 ## Key Patterns
 
@@ -128,37 +207,59 @@ import { cn } from "@/lib/utils"
 
 **Server Components (default):**
 - Layout, loading, pages
-- Header component (checks auth with `stackServerApp.getUser()`)
-- Prefer for data fetching and when auth state is needed
+- Prefer for data fetching and authentication checks
+- Can call `authService.getCurrentUser()` directly
 
 **Client Components (must have `"use client"`):**
-- Sign in/sign up pages (form handling, OAuth)
-- Sidebar (state management, keyboard shortcuts, responsive behavior)
+- Interactive forms (sign in/sign up, bookmark forms)
+- Components using hooks (useState, useEffect, useTheme, useSession)
 - All Radix UI wrappers (interactive primitives)
-- Components using hooks (useState, useEffect, useTheme, etc.)
+- Sidebar (state management, keyboard shortcuts, responsive behavior)
 
 ### Authentication in Components
 
-**Server Components:**
+**Server Components & Server Actions:**
 ```tsx
-import { stackServerApp } from "@/stack/server"
+import { authService } from "@/lib/dal/auth"
 
 export default async function ProtectedPage() {
-  const user = await stackServerApp.getUser({ or: "redirect" })
-  // Automatically redirects to /signin if not authenticated
-  return <div>Hello {user.displayName}</div>
+  const session = await authService.getCurrentUser()
+
+  if (!session?.user) {
+    redirect("/signin")
+  }
+
+  return <div>Hello {session.user.name}</div>
 }
 ```
 
 **Client Components:**
 ```tsx
 "use client"
-import { useUser } from "@stackframe/stack"
+import { useSession } from "@/lib/auth/better-auth-client"
 
 export function ProtectedComponent() {
-  const user = useUser({ or: "redirect" })
-  // Automatically redirects to /signin if not authenticated
-  return <div>Hello {user.displayName}</div>
+  const { data: session, isPending } = useSession()
+
+  if (isPending) return <div>Loading...</div>
+  if (!session?.user) return null
+
+  return <div>Hello {session.user.name}</div>
+}
+```
+
+**Server Actions Pattern:**
+```tsx
+"use server"
+
+export async function myAction() {
+  const userData = await authService.getCurrentUser()
+
+  if (!userData?.user?.id) {
+    throw new Error("User not authenticated")
+  }
+
+  // Use userData.user.id for operations
 }
 ```
 
@@ -194,18 +295,26 @@ The app is being built to support:
 
 ### Current State
 
-- Authentication UI and flows are implemented
-- Component library foundation is complete
+- Authentication UI and flows are implemented (Better Auth with Google OAuth, email/password, anonymous)
+- Database schema defined with Drizzle ORM for Better Auth tables
+- Component library foundation is complete (Radix UI + shadcn/ui)
 - Sidebar with mobile drawer support is functional
 - SearchBar molecule component exists in `components/molecules/`
+- Email templates set up with React Email and Resend
 - Bookmark management features are in development
+- Backend communication layer via HTTP client in DAL
 
 ### Important Files
 
-- `middleware.ts` (if exists): Route protection for auth-only and protected routes
+- `middleware.ts`: Route protection - public routes and auth redirects
 - `app/globals.css`: All CSS variable definitions
 - `components.json`: shadcn/ui configuration (style: new-york, RSC enabled)
-- `stack/client.tsx` & `stack/server.tsx`: Authentication configuration
+- `lib/auth/better-auth.ts`: Server auth configuration
+- `lib/auth/better-auth-client.ts`: Client auth bindings
+- `lib/dal/auth.ts`: Authentication data access layer
+- `lib/db/schema.ts`: Drizzle database schema
+- `drizzle.config.ts`: Drizzle Kit configuration
+- `lib/zod/auth.ts`: Zod validation schemas
 
 ## Frontend Mentor Challenge
 
