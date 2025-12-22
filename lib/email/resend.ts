@@ -3,8 +3,19 @@ import { render } from "@react-email/render";
 import VerificationEmail from "@/emails/verification-email";
 import ResetPasswordEmail from "@/emails/reset-password-email";
 
-// Initialize Resend with API key
-const resend = new Resend(process.env.RESEND_API_KEY!);
+// Lazy initialization of Resend client
+let resendClient: Resend | null = null;
+
+function getResendClient() {
+  if (!resendClient) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      throw new Error("RESEND_API_KEY is not configured");
+    }
+    resendClient = new Resend(apiKey);
+  }
+  return resendClient;
+}
 
 export interface SendEmailOptions {
   to: string;
@@ -18,6 +29,8 @@ export interface SendEmailOptions {
  */
 export async function sendEmail({ to, subject, html, text }: SendEmailOptions) {
   try {
+    const resend = getResendClient();
+
     const emailOptions = {
       from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
       to,
