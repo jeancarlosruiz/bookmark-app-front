@@ -9,10 +9,6 @@ import {
   sendPasswordResetEmail,
 } from "@/lib/email/resend";
 
-if (!process.env.BETTER_AUTH_SECRET) {
-  throw new Error("BETTER_AUTH_SECRET is required for session encryption.");
-}
-
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
