@@ -8,7 +8,7 @@ const publicRoutes = [
   "/reset-password",
 ];
 
-export default async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const isDev = process.env.NODE_ENV === "development";
 
