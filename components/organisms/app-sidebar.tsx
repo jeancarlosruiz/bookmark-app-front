@@ -36,7 +36,7 @@ import { ScrollArea } from "@/components/atoms/scroll-area";
 //   { label: "Tutorial", count: 3, checked: false },
 // ];
 
-const tags: any = [];
+const tags: { label: string; checked: boolean; count: number }[] = [];
 
 export function AppSidebar() {
   const [tagStates, setTagStates] = React.useState(tags);
