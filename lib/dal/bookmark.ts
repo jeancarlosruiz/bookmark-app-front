@@ -27,11 +27,6 @@ export interface UpdateBookmarkInput {
 
 /**
  * Bookmark Data Access Layer
- *
- * Provides a clean interface for all bookmark-related data operations.
- * All methods automatically handle authentication via the httpClient.
- *
- * Use this service in Server Actions and Server Components.
  */
 export const bookmarkService = {
   /**

@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { Home, Archive } from "lucide-react";
 import {
@@ -14,38 +12,17 @@ import { SidebarTagItem } from "@/components/molecules/sidebar-tag-item";
 import { EmptyTags } from "@/components/molecules/empty-tags";
 import BookmarkLogo from "../atoms/logo";
 import { ScrollArea } from "@/components/atoms/scroll-area";
+import { getTagsAction } from "@/actions/tags";
+import { TagsType } from "@/lib/zod/tag";
 
-// Mock data for tags - in a real app, this would come from an API or state management
-// const tags = [
-//   { label: "Ai", count: 1, checked: false },
-//   { label: "Community", count: 5, checked: false },
-//   { label: "Compatibility", count: 1, checked: false },
-//   { label: "CSS", count: 6, checked: false },
-//   { label: "Design", count: 1, checked: false },
-//   { label: "Framework", count: 2, checked: false },
-//   { label: "Git", count: 1, checked: false },
-//   { label: "HTML", count: 2, checked: false },
-//   { label: "JavaScript", count: 3, checked: false },
-//   { label: "Layout", count: 3, checked: false },
-//   { label: "Learning", count: 6, checked: false },
-//   { label: "Performance", count: 2, checked: false },
-//   { label: "Practice", count: 5, checked: false },
-//   { label: "Reference", count: 4, checked: false },
-//   { label: "Tips", count: 4, checked: false },
-//   { label: "Tools", count: 4, checked: false },
-//   { label: "Tutorial", count: 3, checked: false },
-// ];
+export async function AppSidebar() {
+  const tags = await getTagsAction();
 
-const tags: { label: string; checked: boolean; count: number }[] = [];
+  let data: TagsType[] | undefined = [];
 
-export function AppSidebar() {
-  const [tagStates, setTagStates] = React.useState(tags);
-
-  const handleTagChange = (index: number, checked: boolean) => {
-    setTagStates((prev) =>
-      prev.map((tag, i) => (i === index ? { ...tag, checked } : tag)),
-    );
-  };
+  if (tags.success === true) {
+    data = tags.data;
+  }
 
   return (
     <Sidebar>
@@ -82,20 +59,8 @@ export function AppSidebar() {
 
           <ScrollArea className="w-full flex-1 h-full">
             {/* Tag list */}
-            {tagStates.length > 0 ? (
-              <div className="pb-[15px]">
-                {tagStates.map((tag, index) => (
-                  <SidebarTagItem
-                    key={tag.label}
-                    label={tag.label}
-                    count={tag.count}
-                    checked={tag.checked}
-                    onCheckedChange={(checked) =>
-                      handleTagChange(index, checked)
-                    }
-                  />
-                ))}
-              </div>
+            {tags !== undefined && data!.length > 0 ? (
+              <SidebarTagItem tags={data!} />
             ) : (
               <EmptyTags />
             )}
