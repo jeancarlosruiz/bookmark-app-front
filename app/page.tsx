@@ -1,4 +1,3 @@
-import * as React from "react";
 import { SidebarProvider } from "@/components/atoms/sidebar";
 import { AppSidebar } from "@/components/organisms/app-sidebar";
 import { AppHeader } from "@/components/organisms/app-header";
@@ -22,7 +21,7 @@ export default async function Home() {
 
           {/* Bookmark Grid */}
           {data?.length ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[repeat(auto-fill,329px))] auto-rows-[272px] gap-[var(--spacing-200,16px)] md:gap-[var(--spacing-400,32px)]">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(338px,1fr))] auto-rows-[272px] gap-[var(--spacing-200,16px)] md:gap-[var(--spacing-400,32px)]">
               {data.map((bookmark) => (
                 <BookmarkCard bookmark={bookmark} key={bookmark.id} />
               ))}
