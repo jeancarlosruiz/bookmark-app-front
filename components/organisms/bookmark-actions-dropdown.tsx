@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState, forwardRef } from "react";
 import {
   ExternalLink,
   Copy,
@@ -18,20 +18,41 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/atoms/dropdown-menu";
+import { toast } from "sonner";
 
 export interface BookmarkActionsDropdownProps {
   trigger?: React.ReactNode;
+  url: string;
   isPinned?: boolean;
   isArchived?: boolean;
   className?: string;
 }
 
-const BookmarkActionsDropdown = React.forwardRef<
+const BookmarkActionsDropdown = forwardRef<
   HTMLDivElement,
   BookmarkActionsDropdownProps
->(({ trigger, isPinned = false, isArchived = false, className }, ref) => {
-  const onVisit = () => {};
-  const onCopyUrl = () => {};
+>(({ trigger, isPinned = false, isArchived = false, url, className }, ref) => {
+  const [isDisabled, setIsDisabled] = useState(false);
+
+  const sleep = (ms: number = 2000) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
+  const onVisit = async () => {
+    // Aqui se ejecutara una llamada http para aumentar el conteo de visitas, luego se ira al link
+    setIsDisabled(true);
+    await sleep();
+
+    window.open(url, "_blank", "noopener,noreferrer");
+
+    setIsDisabled(false);
+  };
+
+  const onCopyUrl = () => {
+    navigator.clipboard.writeText(url);
+
+    toast("Link copied to clipboard.", { icon: <Copy className="size-5" /> });
+  };
+
   const onPin = () => {};
   const onUnpin = () => {};
   const onEdit = () => {};
@@ -59,10 +80,11 @@ const BookmarkActionsDropdown = React.forwardRef<
             "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
             "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
           )}
+          disabled={isDisabled}
           onClick={onVisit}
         >
           <ExternalLink
-            className="size-[12.8px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+            className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
             strokeWidth={2}
           />
           <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
@@ -80,7 +102,7 @@ const BookmarkActionsDropdown = React.forwardRef<
           onClick={onCopyUrl}
         >
           <Copy
-            className="size-[12.8px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+            className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
             strokeWidth={2}
           />
           <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
@@ -96,10 +118,11 @@ const BookmarkActionsDropdown = React.forwardRef<
               "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
               "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
             )}
+            disabled={isDisabled}
             onClick={onUnarchive}
           >
             <RotateCcw
-              className="size-[12.8px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+              className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
               strokeWidth={2}
             />
             <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
@@ -113,10 +136,11 @@ const BookmarkActionsDropdown = React.forwardRef<
               "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
               "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
             )}
+            disabled={isDisabled}
             onClick={onUnpin}
           >
             <PinOff
-              className="size-[12.8px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+              className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
               strokeWidth={2}
             />
             <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
@@ -130,10 +154,11 @@ const BookmarkActionsDropdown = React.forwardRef<
               "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
               "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
             )}
+            disabled={isDisabled}
             onClick={onPin}
           >
             <Pin
-              className="size-[12.8px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+              className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
               strokeWidth={2}
             />
             <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
@@ -153,7 +178,7 @@ const BookmarkActionsDropdown = React.forwardRef<
             onClick={onEdit}
           >
             <SquarePen
-              className="size-[12.8px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+              className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
               strokeWidth={2}
             />
             <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
@@ -173,7 +198,7 @@ const BookmarkActionsDropdown = React.forwardRef<
             onClick={onDelete}
           >
             <Trash2
-              className="size-[12.8px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+              className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
               strokeWidth={2}
             />
             <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
@@ -190,7 +215,7 @@ const BookmarkActionsDropdown = React.forwardRef<
             onClick={onArchive}
           >
             <Archive
-              className="size-[12.8px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+              className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
               strokeWidth={2}
             />
             <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">

@@ -16,6 +16,22 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="group"
+      toastOptions={{
+        classNames: {
+          toast:
+            "!bg-white dark:!bg-[#004241] !border !border-[#dde9e7] dark:!border-[#004746] !rounded-[8px] !shadow-[0px_6px_9px_0px_rgba(21,21,21,0.08)] dark:!shadow-[0px_6px_9px_0px_rgba(21,21,21,0.12)] !px-[12px] !py-[10px] !gap-[8px] !flex !items-center",
+          title:
+            "!text-[14px] !font-medium !text-[#051513] dark:!text-white !leading-[1.5] !tracking-[0.14px]",
+          description:
+            "!text-[14px] !font-medium !text-[#051513] dark:!text-white !leading-[1.5] !tracking-[0.14px]",
+          actionButton:
+            "!bg-[#014745] dark:!bg-[#014745] !text-white",
+          cancelButton:
+            "!bg-[#dde9e7] dark:!bg-[#002e2d] !text-[#051513] dark:!text-white",
+          closeButton:
+            "!opacity-50 !bg-transparent !border-0 !text-[#051513] dark:!text-white hover:!opacity-100",
+        },
+      }}
       icons={{
         success: (
           <svg
@@ -26,7 +42,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
             viewBox="0 0 20 20"
           >
             <path
-              className="stroke-[var(--teal-700)] dark:stroke-[var(--neutral-0)]"
+              className="stroke-[#014745] dark:stroke-white"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="1.6"
@@ -34,19 +50,11 @@ const Toaster = ({ ...props }: ToasterProps) => {
             />
           </svg>
         ),
-        info: <InfoIcon className="size-4" />,
-        warning: <TriangleAlertIcon className="size-4" />,
-        error: <OctagonXIcon className="size-4" />,
-        loading: <Loader2Icon className="size-4 animate-spin" />,
+        info: <InfoIcon className="size-5 text-[#051513] dark:text-white" />,
+        warning: <TriangleAlertIcon className="size-5 text-[#051513] dark:text-white" />,
+        error: <OctagonXIcon className="size-5 text-[#051513] dark:text-white" />,
+        loading: <Loader2Icon className="size-5 animate-spin text-[#051513] dark:text-white" />,
       }}
-      style={
-        {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
-        } as React.CSSProperties
-      }
       {...props}
     />
   );

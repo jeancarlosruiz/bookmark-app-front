@@ -6,7 +6,6 @@ export interface BookmarkCardHeaderProps {
   logo?: string;
   title: string;
   url: string;
-  onOptionsClick?: () => void;
   className?: string;
 }
 
@@ -19,7 +18,7 @@ const BookmarkCardHeader = React.forwardRef<
       ref={ref}
       className={cn(
         "flex gap-[var(--spacing-150,12px)] items-start flex-1",
-        className
+        className,
       )}
     >
       {/* Logo */}

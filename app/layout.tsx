@@ -29,7 +29,7 @@ export default function RootLayout({
           enableColorScheme
         >
           {children}
-          <Toaster duration={100000} />
+          <Toaster duration={2000} />
         </ThemeProvider>
       </body>
     </html>

@@ -41,12 +41,7 @@ const BookmarkCard = React.forwardRef<HTMLDivElement, BookmarkCardProps>(
         <div className="flex flex-col gap-4 items-start p-[var(--spacing-200,16px)] rounded-[10px] w-full flex-1">
           {/* Header */}
           <div className="flex gap-[var(--spacing-150,12px)] items-start w-full">
-            <BookmarkCardHeader
-              logo={favicon}
-              title={title}
-              url={url}
-              onOptionsClick={() => {}}
-            />
+            <BookmarkCardHeader logo={favicon} title={title} url={url} />
             <BookmarkActionsDropdown
               trigger={
                 <IconButton size="sm" variant="default" aria-label="Options">
@@ -55,6 +50,7 @@ const BookmarkCard = React.forwardRef<HTMLDivElement, BookmarkCardProps>(
               }
               isPinned={pinned}
               isArchived={isArchived}
+              url={url}
             />
           </div>
 
