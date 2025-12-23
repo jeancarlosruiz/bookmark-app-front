@@ -11,29 +11,32 @@ import {
 } from "@/components/atoms/sidebar";
 import { SidebarNavItem } from "@/components/molecules/sidebar-nav-item";
 import { SidebarTagItem } from "@/components/molecules/sidebar-tag-item";
+import { EmptyTags } from "@/components/molecules/empty-tags";
 import BookmarkLogo from "../atoms/logo";
 import { ScrollArea } from "@/components/atoms/scroll-area";
 
 // Mock data for tags - in a real app, this would come from an API or state management
-const tags = [
-  { label: "Ai", count: 1, checked: false },
-  { label: "Community", count: 5, checked: false },
-  { label: "Compatibility", count: 1, checked: false },
-  { label: "CSS", count: 6, checked: false },
-  { label: "Design", count: 1, checked: false },
-  { label: "Framework", count: 2, checked: false },
-  { label: "Git", count: 1, checked: false },
-  { label: "HTML", count: 2, checked: false },
-  { label: "JavaScript", count: 3, checked: false },
-  { label: "Layout", count: 3, checked: false },
-  { label: "Learning", count: 6, checked: false },
-  { label: "Performance", count: 2, checked: false },
-  { label: "Practice", count: 5, checked: false },
-  { label: "Reference", count: 4, checked: false },
-  { label: "Tips", count: 4, checked: false },
-  { label: "Tools", count: 4, checked: false },
-  { label: "Tutorial", count: 3, checked: false },
-];
+// const tags = [
+//   { label: "Ai", count: 1, checked: false },
+//   { label: "Community", count: 5, checked: false },
+//   { label: "Compatibility", count: 1, checked: false },
+//   { label: "CSS", count: 6, checked: false },
+//   { label: "Design", count: 1, checked: false },
+//   { label: "Framework", count: 2, checked: false },
+//   { label: "Git", count: 1, checked: false },
+//   { label: "HTML", count: 2, checked: false },
+//   { label: "JavaScript", count: 3, checked: false },
+//   { label: "Layout", count: 3, checked: false },
+//   { label: "Learning", count: 6, checked: false },
+//   { label: "Performance", count: 2, checked: false },
+//   { label: "Practice", count: 5, checked: false },
+//   { label: "Reference", count: 4, checked: false },
+//   { label: "Tips", count: 4, checked: false },
+//   { label: "Tools", count: 4, checked: false },
+//   { label: "Tutorial", count: 3, checked: false },
+// ];
+
+const tags: any = [];
 
 export function AppSidebar() {
   const [tagStates, setTagStates] = React.useState(tags);
@@ -79,17 +82,23 @@ export function AppSidebar() {
 
           <ScrollArea className="w-full flex-1 h-full">
             {/* Tag list */}
-            <div className="pb-[15px]">
-              {tagStates.map((tag, index) => (
-                <SidebarTagItem
-                  key={tag.label}
-                  label={tag.label}
-                  count={tag.count}
-                  checked={tag.checked}
-                  onCheckedChange={(checked) => handleTagChange(index, checked)}
-                />
-              ))}
-            </div>
+            {tagStates.length > 0 ? (
+              <div className="pb-[15px]">
+                {tagStates.map((tag, index) => (
+                  <SidebarTagItem
+                    key={tag.label}
+                    label={tag.label}
+                    count={tag.count}
+                    checked={tag.checked}
+                    onCheckedChange={(checked) =>
+                      handleTagChange(index, checked)
+                    }
+                  />
+                ))}
+              </div>
+            ) : (
+              <EmptyTags />
+            )}
           </ScrollArea>
         </SidebarGroup>
       </SidebarContent>
