@@ -24,7 +24,6 @@ const BookmarkCard = React.forwardRef<HTMLDivElement, BookmarkCardProps>(
       visitCount,
       lastVisited,
       createdAt,
-      pinned,
       isArchived,
     } = bookmark;
 
@@ -48,9 +47,7 @@ const BookmarkCard = React.forwardRef<HTMLDivElement, BookmarkCardProps>(
                   <MoreVertical className="size-5" />
                 </IconButton>
               }
-              isPinned={pinned}
-              isArchived={isArchived}
-              url={url}
+              bookmark={bookmark}
             />
           </div>
 

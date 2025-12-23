@@ -18,4 +18,11 @@ export const bookmarkSchema = z.object({
   userId: z.string(),
 });
 
+export const CREATE_BOOKMARK_SCHEMA = bookmarkSchema.pick({
+  title: true,
+  url: true,
+  description: true,
+});
+
 export type BookmarkType = z.infer<typeof bookmarkSchema>;
+export type CreateBookmarkType = z.infer<typeof CREATE_BOOKMARK_SCHEMA>;

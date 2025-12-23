@@ -47,3 +47,59 @@ export const getBookmarksAction = async () => {
     };
   }
 };
+
+export interface CREATE_BOOKMARK_STATE {
+  status: "idle" | "pending" | "success" | "error";
+  errors?: Record<string, string> | null;
+  fields?: {
+    title: string;
+    description: string;
+    url: string;
+    tags: string;
+  };
+}
+
+export const createBookmarkAction = async (
+  _: CREATE_BOOKMARK_STATE,
+  formData: FormData,
+): Promise<CREATE_BOOKMARK_STATE> => {
+  try {
+    return {
+      status: "success",
+      errors: null,
+    };
+  } catch (error) {
+    return {
+      status: "success",
+      errors: null,
+    };
+  }
+};
+
+export interface UPDATE_BOOKMARK_STATE {
+  status: "idle" | "pending" | "success" | "error";
+  errors?: Record<string, string> | null;
+  fields?: {
+    title: string;
+    description: string;
+    url: string;
+    tags: string;
+  };
+}
+
+export const updateBookmarkAction = async (
+  _: UPDATE_BOOKMARK_STATE,
+  formData: FormData,
+): Promise<UPDATE_BOOKMARK_STATE> => {
+  try {
+    return {
+      status: "success",
+      errors: null,
+    };
+  } catch (error) {
+    return {
+      status: "success",
+      errors: null,
+    };
+  }
+};

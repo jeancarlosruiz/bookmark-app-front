@@ -1,4 +1,4 @@
-import { BookmarkType } from "../zod/bookmark";
+import { BookmarkType, CreateBookmarkType } from "../zod/bookmark";
 import { httpClient } from "./http-client";
 
 /**
@@ -9,11 +9,9 @@ export interface Bookmark {
   data: BookmarkType[];
 }
 
-export interface CreateBookmarkInput {
-  title: string;
-  url: string;
-  description?: string;
+export interface CreateBookmarkInput extends CreateBookmarkType {
   tags?: string[];
+  userId: string;
 }
 
 export interface UpdateBookmarkInput {

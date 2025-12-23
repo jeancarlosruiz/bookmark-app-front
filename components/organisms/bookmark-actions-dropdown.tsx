@@ -19,20 +19,21 @@ import {
   DropdownMenuItem,
 } from "@/components/atoms/dropdown-menu";
 import { toast } from "sonner";
+import EditBookmarkForm from "./edit-bookmark-form";
+import { BookmarkType } from "@/lib/zod/bookmark";
 
 export interface BookmarkActionsDropdownProps {
   trigger?: React.ReactNode;
-  url: string;
-  isPinned?: boolean;
-  isArchived?: boolean;
   className?: string;
+  bookmark: BookmarkType;
 }
 
 const BookmarkActionsDropdown = forwardRef<
   HTMLDivElement,
   BookmarkActionsDropdownProps
->(({ trigger, isPinned = false, isArchived = false, url, className }, ref) => {
+>(({ bookmark, trigger, className }, ref) => {
   const [isDisabled, setIsDisabled] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const sleep = (ms: number = 2000) =>
     new Promise((resolve) => setTimeout(resolve, ms));
@@ -42,189 +43,199 @@ const BookmarkActionsDropdown = forwardRef<
     setIsDisabled(true);
     await sleep();
 
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.open(bookmark.url, "_blank", "noopener,noreferrer");
 
     setIsDisabled(false);
   };
 
   const onCopyUrl = () => {
-    navigator.clipboard.writeText(url);
+    navigator.clipboard.writeText(bookmark.url);
 
     toast("Link copied to clipboard.", { icon: <Copy className="size-5" /> });
   };
 
   const onPin = () => {};
   const onUnpin = () => {};
-  const onEdit = () => {};
+  const onEdit = () => {
+    setIsDialogOpen(true);
+  };
   const onArchive = () => {};
   const onUnarchive = () => {};
   const onDelete = () => {};
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        ref={ref}
-        className={cn(
-          "bg-white dark:bg-[var(--neutral-800-dark,#001f1f)] border border-[var(--neutral-100,#e8f0ef)] dark:border-[var(--neutral-600-dark,#002e2d)] flex flex-col gap-[var(--spacing-050,4px)] items-start p-[var(--spacing-100,8px)] rounded-[8px] shadow-[0px_6px_14px_0px_rgba(34,38,39,0.1)] w-[200px]",
-          className,
-        )}
-        sideOffset={5}
-        align="end"
-      >
-        {/* Visit */}
-        <DropdownMenuItem
+        <DropdownMenuContent
+          ref={ref}
           className={cn(
-            "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
-            "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
-            "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
+            "bg-white dark:bg-[var(--neutral-800-dark,#001f1f)] border border-[var(--neutral-100,#e8f0ef)] dark:border-[var(--neutral-600-dark,#002e2d)] flex flex-col gap-[var(--spacing-050,4px)] items-start p-[var(--spacing-100,8px)] rounded-[8px] shadow-[0px_6px_14px_0px_rgba(34,38,39,0.1)] w-[200px]",
+            className,
           )}
-          disabled={isDisabled}
-          onClick={onVisit}
+          sideOffset={5}
+          align="end"
         >
-          <ExternalLink
-            className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
-            strokeWidth={2}
-          />
-          <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
-            Visit
-          </span>
-        </DropdownMenuItem>
+          {/* Visit */}
+          <DropdownMenuItem
+            className={cn(
+              "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
+              "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
+              "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
+            )}
+            disabled={isDisabled}
+            onClick={onVisit}
+          >
+            <ExternalLink
+              className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+              strokeWidth={2}
+            />
+            <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
+              Visit
+            </span>
+          </DropdownMenuItem>
 
-        {/* Copy URL */}
-        <DropdownMenuItem
-          className={cn(
-            "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
-            "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
-            "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
+          {/* Copy URL */}
+          <DropdownMenuItem
+            className={cn(
+              "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
+              "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
+              "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
+            )}
+            onClick={onCopyUrl}
+          >
+            <Copy
+              className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+              strokeWidth={2}
+            />
+            <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
+              Copy URL
+            </span>
+          </DropdownMenuItem>
+
+          {/* Conditional: Pin/Unpin OR Unarchive */}
+          {bookmark.isArchived ? (
+            <DropdownMenuItem
+              className={cn(
+                "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
+                "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
+                "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
+              )}
+              disabled={isDisabled}
+              onClick={onUnarchive}
+            >
+              <RotateCcw
+                className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+                strokeWidth={2}
+              />
+              <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
+                Unarchive
+              </span>
+            </DropdownMenuItem>
+          ) : bookmark.pinned ? (
+            <DropdownMenuItem
+              className={cn(
+                "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
+                "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
+                "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
+              )}
+              disabled={isDisabled}
+              onClick={onUnpin}
+            >
+              <PinOff
+                className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+                strokeWidth={2}
+              />
+              <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
+                Unpin
+              </span>
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem
+              className={cn(
+                "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
+                "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
+                "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
+              )}
+              disabled={isDisabled}
+              onClick={onPin}
+            >
+              <Pin
+                className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+                strokeWidth={2}
+              />
+              <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
+                Pin
+              </span>
+            </DropdownMenuItem>
           )}
-          onClick={onCopyUrl}
-        >
-          <Copy
-            className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
-            strokeWidth={2}
-          />
-          <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
-            Copy URL
-          </span>
-        </DropdownMenuItem>
 
-        {/* Conditional: Pin/Unpin OR Unarchive */}
-        {isArchived ? (
-          <DropdownMenuItem
-            className={cn(
-              "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
-              "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
-              "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
-            )}
-            disabled={isDisabled}
-            onClick={onUnarchive}
-          >
-            <RotateCcw
-              className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
-              strokeWidth={2}
-            />
-            <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
-              Unarchive
-            </span>
-          </DropdownMenuItem>
-        ) : isPinned ? (
-          <DropdownMenuItem
-            className={cn(
-              "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
-              "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
-              "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
-            )}
-            disabled={isDisabled}
-            onClick={onUnpin}
-          >
-            <PinOff
-              className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
-              strokeWidth={2}
-            />
-            <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
-              Unpin
-            </span>
-          </DropdownMenuItem>
-        ) : (
-          <DropdownMenuItem
-            className={cn(
-              "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
-              "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
-              "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
-            )}
-            disabled={isDisabled}
-            onClick={onPin}
-          >
-            <Pin
-              className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
-              strokeWidth={2}
-            />
-            <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
-              Pin
-            </span>
-          </DropdownMenuItem>
-        )}
+          {/* Edit (not shown for archived) */}
+          {!bookmark.isArchived && (
+            <DropdownMenuItem
+              className={cn(
+                "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
+                "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
+                "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
+              )}
+              onClick={onEdit}
+            >
+              <SquarePen
+                className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+                strokeWidth={2}
+              />
+              <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
+                Edit
+              </span>
+            </DropdownMenuItem>
+          )}
 
-        {/* Edit (not shown for archived) */}
-        {!isArchived && (
-          <DropdownMenuItem
-            className={cn(
-              "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
-              "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
-              "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
-            )}
-            onClick={onEdit}
-          >
-            <SquarePen
-              className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
-              strokeWidth={2}
-            />
-            <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
-              Edit
-            </span>
-          </DropdownMenuItem>
-        )}
+          {/* Archive or Delete Permanently */}
+          {bookmark.isArchived ? (
+            <DropdownMenuItem
+              className={cn(
+                "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
+                "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
+                "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
+              )}
+              onClick={onDelete}
+            >
+              <Trash2
+                className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+                strokeWidth={2}
+              />
+              <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
+                Delete Permanently
+              </span>
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem
+              className={cn(
+                "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
+                "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
+                "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
+              )}
+              onClick={onArchive}
+            >
+              <Archive
+                className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+                strokeWidth={2}
+              />
+              <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
+                Archive
+              </span>
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-        {/* Archive or Delete Permanently */}
-        {isArchived ? (
-          <DropdownMenuItem
-            className={cn(
-              "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
-              "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
-              "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
-            )}
-            onClick={onDelete}
-          >
-            <Trash2
-              className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
-              strokeWidth={2}
-            />
-            <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
-              Delete Permanently
-            </span>
-          </DropdownMenuItem>
-        ) : (
-          <DropdownMenuItem
-            className={cn(
-              "flex gap-[var(--spacing-125,10px)] items-center p-[var(--spacing-100,8px)] rounded-[6px] w-full",
-              "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
-              "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
-            )}
-            onClick={onArchive}
-          >
-            <Archive
-              className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
-              strokeWidth={2}
-            />
-            <span className="flex-1 font-semibold text-[14px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
-              Archive
-            </span>
-          </DropdownMenuItem>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      <EditBookmarkForm
+        dialogOpen={isDialogOpen}
+        setDialogOpen={setIsDialogOpen}
+        bookmark={bookmark}
+      />
+    </>
   );
 });
 
