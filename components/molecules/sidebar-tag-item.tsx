@@ -15,7 +15,7 @@ export interface SidebarTagItemProps {
 const SidebarTagItem = ({ tags }: SidebarTagItemProps) => {
   return (
     <div className="pb-[15px]">
-      {tags.map(({ id, title }) => (
+      {tags.map(({ id, title, totalBookmarks }) => (
         <div
           key={id}
           className="flex items-center overflow-hidden px-0 py-[var(--spacing-xxs,2px)] w-full"
@@ -27,8 +27,7 @@ const SidebarTagItem = ({ tags }: SidebarTagItemProps) => {
                 {title}
               </p>
             </div>
-            {/*  0 por ahora hasta que actualice el modelo en la base de datos */}
-            <Badge>{0}</Badge>
+            <Badge>{totalBookmarks}</Badge>
           </div>
         </div>
       ))}

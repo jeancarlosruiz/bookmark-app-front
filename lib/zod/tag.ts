@@ -7,6 +7,7 @@ export const tagSchema = z.object({
   deletedAt: z.string(),
   title: z.string(),
   userId: z.string(),
+  totalBookmarks: z.number(),
 });
 
 export type TagsType = z.infer<typeof tagSchema>;
