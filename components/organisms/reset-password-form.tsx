@@ -7,10 +7,7 @@ import { Input } from "@/components/atoms/input";
 import { FormHeader } from "@/components/molecules/form-header";
 import { AppLogo } from "@/components/atoms/app-logo";
 import { useActionState } from "react";
-import {
-  resetPassword,
-  RESET_PASSWORD_FORM_STATE,
-} from "@/actions/auth";
+import { resetPassword, RESET_PASSWORD_FORM_STATE } from "@/actions/auth";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const initialState: RESET_PASSWORD_FORM_STATE = {
@@ -29,7 +26,7 @@ const ResetPasswordForm = () => {
 
   const [state, formAction, isPending] = useActionState(
     resetPassword,
-    initialState
+    initialState,
   );
   const isError = state.status === "error";
   const isSuccess = state.status === "success";
