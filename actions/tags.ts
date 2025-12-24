@@ -11,12 +11,8 @@ export const getTagsAction = async () => {
   try {
     const userData = await authService.getCurrentUser();
 
-    if (!userData?.user?.id) {
-      throw new Error("User not authenticated");
-    }
-
-    const userId = userData.user.id;
-    const { data } = await tagService.getUserTags(userId);
+    const userId = userData?.user.id;
+    const { data } = await tagService.getUserTags(userId!);
 
     return {
       success: true,

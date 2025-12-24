@@ -6,8 +6,6 @@ import { BookmarkCard } from "@/components/organisms/bookmark-card";
 import { EmptyBookmarks } from "@/components/organisms/empty-bookmarks";
 import { getBookmarksAction } from "@/actions/bookmarks";
 
-export const dynamic = 'force-dynamic';
-
 export default async function Home() {
   const { data: bookmarks } = await getBookmarksAction();
 
