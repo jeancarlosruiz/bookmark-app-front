@@ -1,0 +1,20 @@
+import * as React from "react";
+import { SidebarProvider } from "@/components/atoms/sidebar";
+import { AppSidebar } from "@/components/organisms/app-sidebar";
+import { AppHeader } from "@/components/organisms/app-header";
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <SidebarProvider>
+      <AppSidebar />
+      <main className="w-full bg-[var(--neutral-200)] dark:bg-[var(--neutral-900-dark)] min-h-screen">
+        <AppHeader />
+        {children}
+      </main>
+    </SidebarProvider>
+  );
+}

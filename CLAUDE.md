@@ -4,22 +4,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **bookmark manager app** challenge from Frontend Mentor, built as a full-stack application with Next.js 15, React 19, and Better Auth for authentication. The app allows users to manage bookmarks with features like search, filtering by tags, archiving, pinning, and theme switching.
+This is a **bookmark manager app** challenge from Frontend Mentor, built as a full-stack application with Next.js 16, React 19, and Better Auth for authentication. The app allows users to manage bookmarks with features like search, filtering by tags, archiving, pinning, and theme switching.
 
 ## Tech Stack
 
-- **Framework**: Next.js 15.5.4 (App Router with Turbopack)
-- **React**: 19.1.0 (Server Components enabled)
+- **Framework**: Next.js 16.1.1 (App Router with Turbopack)
+- **React**: 19.2.3 (Server Components enabled)
 - **TypeScript**: 5.x
-- **Styling**: Tailwind CSS 4.x with PostCSS
+- **Styling**: Tailwind CSS 4.1.14 with PostCSS
 - **UI Components**: Radix UI primitives + shadcn/ui (new-york style)
 - **Authentication**: Better Auth 1.4.7 with Google OAuth, email/password, and anonymous mode
 - **Database**: PostgreSQL (Neon) with Drizzle ORM 0.45.1
-- **Icons**: Lucide React
-- **Theming**: next-themes with light/dark mode support
+- **Icons**: Lucide React 0.545.0
+- **Theming**: next-themes 0.4.6 with light/dark mode support
 - **Validation**: Zod 4.1.13
-- **Toast Notifications**: Sonner
-- **Email**: React Email with Resend
+- **Toast Notifications**: Sonner 2.0.7
+- **Email**: React Email 5.1.0 with Resend 6.6.0
 
 ## Development Commands
 
@@ -88,13 +88,21 @@ DATABASE_URL='postgresql://...'
 
 # Email (Resend)
 RESEND_API_KEY='...'
+RESEND_FROM_EMAIL='onboarding@resend.dev'  # Use your domain in production
+
+# Backend API
+API_URL='http://localhost:8080/api'              # Server-side calls
+NEXT_PUBLIC_API_URL='http://localhost:8080/api'  # Client-side calls
 ```
 
-**Middleware Protection** (`middleware.ts`):
-- Public routes: `/signin`, `/signup`, `/forgot-password`, `/reset-password`
-- All other routes require authentication via `authService.hasUserCookies()`
-- Authenticated users redirected away from auth pages
-- Excludes: `/api/auth/*`, static files, images
+**Route Protection** (`proxy.ts`):
+- Uses Better Auth's `getSessionCookie()` for lightweight session checking
+- Public routes: `/signin`, `/signup`, `/forgot-password`
+- All other routes require session cookie
+- Authenticated users redirected away from auth pages to `/`
+- Unauthenticated users redirected to `/signin`
+- Excludes: `/api/*`, `_next/static`, `_next/image`, `favicon.ico`, static assets, `/examples`
+- Exports Next.js middleware via `export async function proxy()` and `export const config`
 
 ### Database Schema (Drizzle ORM)
 
@@ -150,13 +158,24 @@ The app uses a centralized Data Access Layer for server-side operations:
 
 - `auth.ts`: Authentication operations (signIn, signUp, getCurrentUser, etc.)
 - `bookmark.ts`: Bookmark CRUD operations
-- `http-client.ts`: HTTP client with error handling for external APIs
+- `tags.ts`: Tag operations (getUserTags)
+- `http-client.ts`: HTTP client with error handling and automatic JWT token injection for backend API calls
 
 **Server Actions** (`actions/`):
 - `auth.ts`: Auth-related server actions
 - `bookmarks.ts`: Bookmark server actions that call `bookmarkService`
+- `tags.ts`: Tag server actions that call `tagService`
 
-Pattern: Server actions call DAL services, which handle business logic and data fetching.
+Pattern: Server actions call DAL services, which handle business logic and backend API communication via `httpClient`.
+
+**HTTP Client Architecture** (`lib/dal/http-client.ts`):
+- Singleton HTTP client for all backend API communication
+- Automatically injects JWT token from `authService.getUserToken()` in `Authorization: Bearer <token>` header
+- Base URL from `process.env.API_URL` (server-side) or `process.env.NEXT_PUBLIC_API_URL` (client-side)
+- Timeout handling (30 seconds default)
+- Custom `HTTPError` class with status, statusText, and URL
+- Methods: `get<T>()`, `post<T>()`, `put<T>()`, `patch<T>()`, `delete<T>()`
+- Optional `requireAuth` flag to skip token injection when needed
 
 ### Styling System
 
@@ -306,12 +325,13 @@ The app is being built to support:
 
 ### Important Files
 
-- `middleware.ts`: Route protection - public routes and auth redirects
-- `app/globals.css`: All CSS variable definitions
+- `proxy.ts`: Route protection using Better Auth's `getSessionCookie()` - public routes and auth redirects
+- `app/globals.css`: All CSS variable definitions for light/dark themes
 - `components.json`: shadcn/ui configuration (style: new-york, RSC enabled)
 - `lib/auth/better-auth.ts`: Server auth configuration
 - `lib/auth/better-auth-client.ts`: Client auth bindings
 - `lib/dal/auth.ts`: Authentication data access layer
+- `lib/dal/http-client.ts`: HTTP client with JWT token injection for backend API
 - `lib/db/schema.ts`: Drizzle database schema
 - `drizzle.config.ts`: Drizzle Kit configuration
 - `lib/zod/auth.ts`: Zod validation schemas
