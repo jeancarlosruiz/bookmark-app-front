@@ -11,6 +11,8 @@ export default async function Home() {
 
   const data = bookmarks?.data;
 
+  console.log(data);
+
   return (
     <SidebarProvider>
       <AppSidebar />

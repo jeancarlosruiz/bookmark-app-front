@@ -1,85 +1,101 @@
 import * as React from "react";
-import { Eye, Clock, Calendar } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Eye, Clock, Calendar, Pin } from "lucide-react";
+import { cn, formatDate } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../atoms/tooltip";
 
 export interface BookmarkCardFooterProps {
   views: number;
-  time: string | null;
-  date: string;
+  lastTimeVisited: string | null;
+  createdAt: string;
+  pinned: boolean;
   className?: string;
 }
 
 const BookmarkCardFooter = React.forwardRef<
   HTMLDivElement,
   BookmarkCardFooterProps
->(({ views, time, date, className }, ref) => {
-  // Format date helper
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "Never";
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const month = date.toLocaleString("en-US", { month: "short" });
-    return `${day} ${month}`;
-  };
-
-  // Calculate time since last visit
-  const getTimeSinceVisit = (dateString: string | null) => {
-    if (!dateString) return "Never";
-    const now = new Date();
-    const visitDate = new Date(dateString);
-    const diffMs = now.getTime() - visitDate.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 60) return `${diffMins} min ago`;
-    if (diffHours < 24) return `${diffHours} hr ago`;
-    return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
-  };
-
-  const currentDate = formatDate(date);
-  const lastTimeVisited = getTimeSinceVisit(time);
+>(({ views, lastTimeVisited, createdAt, className, pinned }, ref) => {
+  const createdAtConverted = formatDate(createdAt);
+  const lastTimeVisitedConverted = formatDate(lastTimeVisited);
 
   return (
     <div
       ref={ref}
       className={cn(
-        "flex gap-[var(--spacing-200,16px)] items-center",
+        "flex gap-[var(--spacing-200,16px)] items-center w-full",
         className,
       )}
     >
       {/* Views */}
-      <div className="flex gap-[var(--spacing-075,6px)] items-center">
-        <Eye
-          className="size-[12px] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
-          strokeWidth={2}
-        />
-        <p className="font-medium text-[12px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] whitespace-nowrap">
-          {views}
-        </p>
-      </div>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex gap-[var(--spacing-075,6px)] items-center cursor-pointer">
+            <Eye
+              className="size-4 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+              strokeWidth={2}
+            />
+            <p className="font-medium text-[12px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] whitespace-nowrap">
+              {views}
+            </p>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          <p>Total views</p>
+        </TooltipContent>
+      </Tooltip>
 
-      {/* Time */}
-      <div className="flex gap-[var(--spacing-075,6px)] items-center">
-        <Clock
-          className="size-[12px] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
-          strokeWidth={2}
-        />
-        <p className="font-medium text-[12px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] whitespace-nowrap">
-          {lastTimeVisited}
-        </p>
-      </div>
+      {/* Last Time Visited */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex gap-[var(--spacing-075,6px)] items-center cursor-pointer">
+            <Clock
+              className="size-4 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+              strokeWidth={2}
+            />
+            <p className="font-medium text-[12px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] whitespace-nowrap">
+              {lastTimeVisitedConverted}
+            </p>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          <p>Last visited</p>
+        </TooltipContent>
+      </Tooltip>
 
-      {/* Date */}
-      <div className="flex gap-[var(--spacing-075,6px)] items-center">
-        <Calendar
-          className="size-[12px] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
-          strokeWidth={2}
-        />
-        <p className="font-medium text-[12px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] whitespace-nowrap">
-          {currentDate}
-        </p>
-      </div>
+      {/* Date Created */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex gap-[var(--spacing-075,6px)] items-center cursor-pointer">
+            <Calendar
+              className="size-4 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+              strokeWidth={2}
+            />
+            <p className="font-medium text-[12px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] whitespace-nowrap">
+              {createdAtConverted}
+            </p>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          <p>Date created</p>
+        </TooltipContent>
+      </Tooltip>
+
+      {/* Pinned */}
+      {pinned && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="ml-auto cursor-pointer">
+              <Pin
+                className="size-4 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+                strokeWidth={2}
+              />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            <p>Pinned to top</p>
+          </TooltipContent>
+        </Tooltip>
+      )}
     </div>
   );
 });

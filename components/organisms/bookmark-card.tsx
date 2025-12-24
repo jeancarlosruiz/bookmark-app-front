@@ -73,8 +73,9 @@ const BookmarkCard = React.forwardRef<HTMLDivElement, BookmarkCardProps>(
         <div className="border-t border-[var(--neutral-300,#dde9e7)] dark:border-[var(--neutral-600-dark,#002e2d)] flex gap-[var(--spacing-100,8px)] items-center px-[var(--spacing-200,16px)] py-[var(--spacing-150,12px)] w-full">
           <BookmarkCardFooter
             views={visitCount}
-            time={lastVisited}
-            date={createdAt}
+            lastTimeVisited={lastVisited}
+            createdAt={createdAt}
+            pinned={bookmark.pinned}
           />
         </div>
       </article>

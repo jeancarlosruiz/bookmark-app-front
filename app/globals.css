@@ -190,7 +190,7 @@
   }
 
   * {
-    transition-property: background-color, border-color, color, fill, stroke;
+    transition-property: background-color, color, fill, stroke;
     transition-timing-function: ease-in-out;
     transition-duration: 0.2s;
   }

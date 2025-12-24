@@ -19,3 +19,13 @@ export const range = (start: number, end?: number, step: number = 1) => {
 
   return output;
 };
+
+// Format date helper
+export const formatDate = (dateString: string | null) => {
+  if (!dateString) return "Never";
+
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const month = date.toLocaleString("en-US", { month: "short" });
+  return `${day} ${month}`;
+};
