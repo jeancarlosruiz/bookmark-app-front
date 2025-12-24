@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { Eye, Clock, Calendar, Pin } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils";
