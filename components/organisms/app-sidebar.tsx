@@ -59,8 +59,8 @@ export async function AppSidebar() {
 
           <ScrollArea className="w-full flex-1 h-full">
             {/* Tag list */}
-            {tags !== undefined && data!.length > 0 ? (
-              <SidebarTagItem tags={data!} />
+            {data && data.length > 0 ? (
+              <SidebarTagItem tags={data} />
             ) : (
               <EmptyTags />
             )}
