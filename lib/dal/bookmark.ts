@@ -123,7 +123,7 @@ export const bookmarkService = {
   /**
    * Get archived bookmarks
    */
-  async getArchivedBookmarks(userId: string): Promise<Bookmark[]> {
-    return httpClient.get<Bookmark[]>(`/bookmark/user/${userId}/archived`);
+  async getArchivedBookmarks(userId: string): Promise<Bookmark> {
+    return httpClient.get<Bookmark>(`/bookmark/user/${userId}/archived`);
   },
 };
