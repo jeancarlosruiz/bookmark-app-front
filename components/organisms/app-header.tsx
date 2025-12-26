@@ -16,7 +16,7 @@ export interface AppHeaderProps {
 const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
   ({ className }, ref) => {
     const [searchQuery, setSearchQuery] = React.useState("");
-    const { toggleSidebar, isMobile } = useSidebar();
+    const { toggleSidebar } = useSidebar();
     const [openDialog, setOpenDialog] = React.useState(false);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,18 +36,16 @@ const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
             className,
           )}
         >
-          {/* Hamburger Menu Button - Mobile Only */}
-          {isMobile && (
-            <Button
-              hierarchy="secondary"
-              size="md"
-              onClick={toggleSidebar}
-              className="shrink-0 p-[var(--spacing-125,10px)]"
-              aria-label="Toggle sidebar"
-            >
-              <Menu className="size-5" />
-            </Button>
-          )}
+          {/* Hamburger Menu Button - Mobile/Tablet Only (< 1024px) */}
+          <Button
+            hierarchy="secondary"
+            size="md"
+            onClick={toggleSidebar}
+            className="lg:hidden shrink-0 p-[var(--spacing-125,10px)]"
+            aria-label="Toggle sidebar"
+          >
+            <Menu className="size-5" />
+          </Button>
 
           {/* Search Bar */}
           <div className="flex-1 min-w-0">
@@ -60,14 +58,16 @@ const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
 
           {/* Action Buttons */}
           <div className="flex gap-[var(--spacing-125,10px)] md:gap-[var(--spacing-200,16px)] items-center shrink-0">
+            {/* Add Bookmark Button - Icon only on mobile/tablet, icon + text on desktop */}
             <Button
               hierarchy="primary"
               size="md"
               onClick={() => setOpenDialog(true)}
-              iconLeading={isMobile ? undefined : <Plus className="size-5" />}
-              className={cn(isMobile && "p-[var(--spacing-125,10px)]")}
+              className="p-[var(--spacing-125,10px)] lg:px-4 lg:py-2"
+              aria-label="Add bookmark"
             >
-              {isMobile ? <Plus className="size-5" /> : "Add Bookmark"}
+              <Plus className="size-5" />
+              <span className="hidden lg:inline lg:ml-2">Add Bookmark</span>
             </Button>
 
             <ProfileDropdown />

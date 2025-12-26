@@ -74,7 +74,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           </span>
         )}
         {children && (
-          <span className="px-[var(--spacing-xxs,2px)]">{children}</span>
+          <span className="px-[var(--spacing-xxs,2px)] flex flex-row">
+            {children}
+          </span>
         )}
         {iconTrailing && !isIconOnly && (
           <span className="shrink-0 size-5 flex items-center justify-center">
