@@ -10,7 +10,6 @@ export interface Bookmark {
 }
 
 export interface CreateBookmarkInput extends CreateBookmarkType {
-  tags?: string[];
   userId: string;
 }
 
