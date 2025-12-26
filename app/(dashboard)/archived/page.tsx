@@ -1,0 +1,34 @@
+import { BookmarkListHeader } from "@/components/organisms/bookmark-list-header";
+import { BookmarkCard } from "@/components/organisms/bookmark-card";
+import { EmptyBookmarks } from "@/components/organisms/empty-bookmarks";
+import { Archive } from "lucide-react";
+import { getArchivedBookmarksAction } from "@/actions/bookmarks";
+
+export default async function ArchivedPage() {
+  const { data: bookmarks } = await getArchivedBookmarksAction();
+
+  const data = bookmarks?.data;
+
+  return (
+    <section className="p-[var(--spacing-200,16px)] md:px-[32px] md:py-[var(--spacing-400,32px)] flex flex-col gap-5 md:pt-[var(--spacing-400,32px)]">
+      <BookmarkListHeader title="Archived bookmarks" />
+
+      {/* Bookmark Grid */}
+      {data?.length ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(338px,1fr))] auto-rows-[272px] gap-[var(--spacing-200,16px)] md:gap-[var(--spacing-400,32px)]">
+          {data.map((bookmark) => (
+            <BookmarkCard bookmark={bookmark} key={bookmark.id} />
+          ))}
+        </div>
+      ) : (
+        <EmptyBookmarks
+          title="No archived bookmarks"
+          description="You haven't archived any bookmarks yet. Archived bookmarks are hidden from your main collection but can be restored anytime."
+          icon={
+            <Archive className="w-12 h-12 text-[var(--neutral-500,#899492)] dark:text-[var(--neutral-500-dark,#004241)]" />
+          }
+        />
+      )}
+    </section>
+  );
+}

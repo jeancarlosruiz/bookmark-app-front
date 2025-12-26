@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Home, Archive } from "lucide-react";
 import {
   Sidebar,
@@ -14,6 +13,7 @@ import BookmarkLogo from "../atoms/logo";
 import { ScrollArea } from "@/components/atoms/scroll-area";
 import { getTagsAction } from "@/actions/tags";
 import { TagsType } from "@/lib/zod/tag";
+import NavigationList from "../molecules/navigation-list";
 
 export async function AppSidebar() {
   const tags = await getTagsAction();
@@ -33,21 +33,7 @@ export async function AppSidebar() {
 
       <SidebarContent className="flex flex-col gap-[var(--spacing-200,16px)] pb-[var(--spacing-2xl,20px)] pt-0 px-[var(--spacing-xl,16px)]">
         {/* Navigation */}
-        <SidebarGroup className="flex flex-col items-start w-full p-0">
-          <SidebarNavItem
-            href="/"
-            icon={<Home className="size-5" />}
-            label="Home"
-            active={true}
-          />
-          <SidebarNavItem
-            href="/archived"
-            icon={<Archive className="size-5" />}
-            label="Archived"
-            active={false}
-          />
-        </SidebarGroup>
-
+        <NavigationList />
         {/* Tags */}
         <SidebarGroup className="flex flex-col items-start w-full p-0 flex-1 overflow-y-hidden">
           {/* Subheading */}
