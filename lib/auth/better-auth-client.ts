@@ -14,4 +14,4 @@ export const signInGoogleClient = async () => {
   });
 };
 
-export const { useSession } = authClient;
+export const { useSession, signOut } = authClient;

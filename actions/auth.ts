@@ -163,7 +163,6 @@ export const signup = async (
 
 export const logout = async () => {
   await authService.signOut();
-  redirect("/signin");
 };
 
 export type FORGOT_PASSWORD_FORM_STATE = {

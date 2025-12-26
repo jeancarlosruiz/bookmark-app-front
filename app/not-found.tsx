@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Home, FileQuestion } from "lucide-react";
-import { buttonVariants } from "@/components/atoms/button";
+import { buttonVariants } from "@/components/atoms/button-variants";
 import { cn } from "@/lib/utils";
 
 export default function NotFound() {

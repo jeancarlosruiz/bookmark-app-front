@@ -13,10 +13,9 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/atoms/avatar";
 import { ProfileDropdownHeader } from "@/components/molecules/profile-dropdown-header";
 import { ThemeToggle } from "@/components/atoms/theme-toggle";
-import data from "@/data.json";
 import Link from "next/link";
-import { logout } from "@/actions/auth";
-import { useSession } from "@/lib/auth/better-auth-client";
+import { useSession, signOut } from "@/lib/auth/better-auth-client";
+import { useRouter } from "next/navigation";
 
 export interface ProfileDropdownProps {
   className?: string;
@@ -26,17 +25,23 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
   ({ className }, ref) => {
     const { data: session, isPending } = useSession();
 
-    const isAuthenticated = !!session?.user;
+    const router = useRouter();
 
-    // Obtener info del usuario desde la sesión o usar data.json como fallback
-    const userInfo =
-      isAuthenticated && session?.user
-        ? {
-            displayName: session.user.name || session.user.email || "User",
-            primaryEmail: session.user.email || "",
-            primaryImageUrl: session.user.image || data.user.primaryImageUrl,
-          }
-        : data.user;
+    console.log("Esta es la sesion: ", session);
+
+    // En rutas protegidas, session.user siempre existe (validado por middleware)
+    // isAnonymous indica si el usuario está en modo anónimo
+    const isAuthenticated = !session?.user?.isAnonymous;
+
+    const handleSignout = async () => {
+      await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            router.push("/");
+          },
+        },
+      });
+    };
 
     // Mostrar un estado de loading mientras se carga la sesión
     if (isPending) {
@@ -51,11 +56,11 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
           <button className="cursor-pointer outline-none focus:outline-none">
             <Avatar className="size-10">
               <AvatarImage
-                src={userInfo.primaryImageUrl!}
-                alt={userInfo.displayName! ?? ""}
+                src={session?.user?.image ?? ""}
+                alt={session?.user?.name ?? "User"}
               />
               <AvatarFallback className="bg-[var(--neutral-300,#dde9e7)] dark:bg-[var(--neutral-600-dark,#002e2d)] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] font-semibold text-[14px]">
-                {userInfo.displayName!.charAt(0).toUpperCase()}
+                {session?.user?.name?.charAt(0).toUpperCase() ?? "U"}
               </AvatarFallback>
             </Avatar>
           </button>
@@ -72,9 +77,9 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
         >
           {/* Header */}
           <ProfileDropdownHeader
-            name={userInfo.displayName!}
-            email={userInfo.primaryEmail!}
-            avatar={userInfo.primaryImageUrl!}
+            name={session?.user?.name ?? "User"}
+            email={session?.user?.email ?? ""}
+            avatar={session?.user?.image ?? ""}
           />
 
           {/* Menu items */}
@@ -113,7 +118,7 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
                   "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
                   "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
                 )}
-                onClick={logout}
+                onClick={handleSignout}
               >
                 <LogOut
                   className="size-[16px] shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
