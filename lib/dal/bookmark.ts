@@ -95,8 +95,8 @@ export const bookmarkService = {
   /**
    * Search bookmarks by title or tags
    */
-  async searchBookmarks(userId: string, query: string): Promise<Bookmark[]> {
-    return httpClient.get<Bookmark[]>(
+  async searchBookmarks(userId: string, query: string): Promise<Bookmark> {
+    return httpClient.get<Bookmark>(
       `/bookmark/user/${userId}/search?q=${encodeURIComponent(query)}`,
     );
   },
@@ -104,20 +104,15 @@ export const bookmarkService = {
   /**
    * Filter bookmarks by tags
    */
-  async filterByTags(userId: string, tags: string[]): Promise<Bookmark[]> {
-    const tagsParam = tags
-      .map((tag) => `tags=${encodeURIComponent(tag)}`)
-      .join("&");
-    return httpClient.get<Bookmark[]>(
-      `/bookmark/user/${userId}/filter?${tagsParam}`,
-    );
+  async filterByTags(userId: string, tags: string): Promise<Bookmark> {
+    return httpClient.get<Bookmark>(`/bookmark/tags?q=${tags}`);
   },
 
   /**
    * Get pinned bookmarks
    */
-  async getPinnedBookmarks(userId: string): Promise<Bookmark[]> {
-    return httpClient.get<Bookmark[]>(`/bookmark/user/${userId}?pinned=true`);
+  async getPinnedBookmarks(userId: string): Promise<Bookmark> {
+    return httpClient.get<Bookmark>(`/bookmark/user/${userId}?pinned=true`);
   },
 
   /**

@@ -7,7 +7,7 @@ import { getArchivedBookmarksAction } from "@/actions/bookmarks";
 export default async function ArchivedPage() {
   const { data: bookmarks } = await getArchivedBookmarksAction();
 
-  const data = bookmarks?.data;
+  const data = bookmarks;
 
   return (
     <section className="p-[var(--spacing-200,16px)] md:px-[32px] md:py-[var(--spacing-400,32px)] flex flex-col gap-5 md:pt-[var(--spacing-400,32px)]">

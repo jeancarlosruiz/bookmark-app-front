@@ -7,7 +7,7 @@ import { HTTPError } from "@/lib/dal/http-client";
 /**
  * Get all bookmarks for the current user
  */
-export const getBookmarksAction = async () => {
+export const getBookmarksAction = async (tags: string | undefined) => {
   try {
     const userData = await authService.getCurrentUser();
 
@@ -16,11 +16,17 @@ export const getBookmarksAction = async () => {
     }
 
     const userId = userData.user.id;
-    const bookmarks = await bookmarkService.getUserBookmarks(userId);
+    let bookmarks;
+
+    if (tags) {
+      bookmarks = await bookmarkService.filterByTags(userId, tags);
+    } else {
+      bookmarks = await bookmarkService.getUserBookmarks(userId);
+    }
 
     return {
       success: true,
-      data: bookmarks,
+      data: bookmarks.data,
     };
   } catch (error) {
     // Handle HTTP errors with detailed information
@@ -120,7 +126,7 @@ export const getArchivedBookmarksAction = async () => {
 
     return {
       success: true,
-      data: bookmarks,
+      data: bookmarks.data,
     };
   } catch (error) {
     // Handle HTTP errors with detailed information

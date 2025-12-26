@@ -3,10 +3,16 @@ import { BookmarkCard } from "@/components/organisms/bookmark-card";
 import { EmptyBookmarks } from "@/components/organisms/empty-bookmarks";
 import { getBookmarksAction } from "@/actions/bookmarks";
 
-export default async function Home() {
-  const { data: bookmarks } = await getBookmarksAction();
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ tags: string }>;
+}) {
+  const { tags } = await searchParams;
+  console.log("Estos son los tags", tags);
+  const { data: bookmarks } = await getBookmarksAction(tags);
 
-  const data = bookmarks?.data;
+  const data = bookmarks;
 
   return (
     <section className="p-[var(--spacing-200,16px)] md:px-[32px] md:py-[var(--spacing-400,32px)] flex flex-col gap-5 md:pt-[var(--spacing-400,32px)]">
