@@ -2,7 +2,7 @@
 
 import { forwardRef } from "react";
 import { useQueryState } from "nuqs";
-import { Check } from "lucide-react";
+import { ArrowUpDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -10,12 +10,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/atoms/dropdown-menu";
+import { Button } from "@/components/atoms/button";
 
 // Backend-friendly sort parameter values
 export type SortByValue = "created" | "visited" | "count";
 
 export interface SortByDropdownProps {
-  trigger?: React.ReactNode;
   className?: string;
 }
 
@@ -26,7 +26,7 @@ const sortOptions: { value: SortByValue; label: string }[] = [
 ];
 
 const SortByDropdown = forwardRef<HTMLDivElement, SortByDropdownProps>(
-  ({ trigger, className }, ref) => {
+  ({ className }, ref) => {
     const [currentSort, setCurrentSort] = useQueryState("sort", {
       defaultValue: "created",
     });
@@ -37,7 +37,15 @@ const SortByDropdown = forwardRef<HTMLDivElement, SortByDropdownProps>(
 
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+        <DropdownMenuTrigger asChild>
+          <Button
+            hierarchy="secondary"
+            size="sm"
+            iconLeading={<ArrowUpDown className="size-5" />}
+          >
+            Sort by
+          </Button>
+        </DropdownMenuTrigger>
 
         <DropdownMenuContent
           ref={ref}
