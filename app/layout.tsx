@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import { Toaster } from "@/components/atoms/sonner";
 import { ThemeProvider } from "@/components/atoms/theme-provider";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
 
 const manropeSans = Manrope({
@@ -22,15 +23,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${manropeSans.className} antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          enableColorScheme
-        >
-          {children}
-          <Toaster duration={2000} />
-        </ThemeProvider>
+        <NuqsAdapter>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            enableColorScheme
+          >
+            {children}
+            <Toaster duration={2000} />
+          </ThemeProvider>
+        </NuqsAdapter>
       </body>
     </html>
   );

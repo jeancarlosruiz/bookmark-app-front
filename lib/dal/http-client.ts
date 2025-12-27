@@ -1,10 +1,25 @@
 import { authService } from "./auth";
+import { env } from "../config/env";
+
+/**
+ * Get the appropriate API URL based on execution context
+ * Server-side: Use API_URL
+ * Client-side: Use NEXT_PUBLIC_API_URL
+ */
+function getBaseURL(): string {
+  // Server-side execution (Node.js) - use server-only API_URL
+  if (typeof window === "undefined") {
+    return env.API_URL;
+  }
+
+  // Client-side execution (browser) - use public API_URL
+  return env.NEXT_PUBLIC_API_URL;
+}
 
 /**
  * HTTP Client Configuration
  */
 const HTTP_CONFIG = {
-  baseURL: process.env.API_URL || "",
   timeout: 30000, // 30 seconds
   headers: {
     "Content-Type": "application/json",
@@ -53,14 +68,20 @@ export interface HTTPClientOptions extends Omit<RequestInit, "headers"> {
  * ```
  */
 class HTTPClient {
-  private baseURL: string;
   private defaultHeaders: Record<string, string>;
   private defaultTimeout: number;
 
   constructor() {
-    this.baseURL = HTTP_CONFIG.baseURL;
     this.defaultHeaders = { ...HTTP_CONFIG.headers };
     this.defaultTimeout = HTTP_CONFIG.timeout;
+  }
+
+  /**
+   * Get the base URL (dynamically resolved based on execution context)
+   * @private
+   */
+  private getBaseURL(): string {
+    return getBaseURL();
   }
 
   /**
@@ -85,13 +106,14 @@ class HTTPClient {
       return path;
     }
 
+    // Get base URL (dynamically resolved)
+    const baseURL = this.getBaseURL();
+
     // Remove leading slash from path if present
     const cleanPath = path.startsWith("/") ? path.slice(1) : path;
 
     // Ensure baseURL doesn't end with slash
-    const cleanBaseURL = this.baseURL.endsWith("/")
-      ? this.baseURL.slice(0, -1)
-      : this.baseURL;
+    const cleanBaseURL = baseURL.endsWith("/") ? baseURL.slice(0, -1) : baseURL;
 
     return `${cleanBaseURL}/${cleanPath}`;
   }
@@ -139,6 +161,7 @@ class HTTPClient {
 
       return response;
     } catch (error) {
+      // Handle timeout errors
       if (error instanceof Error && error.name === "AbortError") {
         throw new HTTPError(
           `Request timeout after ${timeout}ms`,
@@ -147,7 +170,35 @@ class HTTPClient {
           url,
         );
       }
-      throw error;
+
+      // Handle network errors (DNS failures, connection refused, etc.)
+      if (error instanceof TypeError) {
+        // TypeError is thrown for network errors in fetch
+        throw new HTTPError(
+          `Network error: ${error.message}. Check if backend is running and URL is correct.`,
+          0, // Network errors don't have HTTP status codes
+          "Network Error",
+          url,
+        );
+      }
+
+      // Handle other errors with detailed context
+      if (error instanceof Error) {
+        throw new HTTPError(
+          `Fetch failed: ${error.message}`,
+          0,
+          error.name,
+          url,
+        );
+      }
+
+      // Unknown error type
+      throw new HTTPError(
+        `Unknown error occurred during fetch`,
+        0,
+        "Unknown Error",
+        url,
+      );
     } finally {
       clearTimeout(timeoutId);
     }
@@ -203,16 +254,43 @@ class HTTPClient {
     const url = this.buildURL(path);
     const headers = await this.buildHeaders(customHeaders, requireAuth);
 
-    const response = await this.fetchWithTimeout(
-      url,
-      {
-        ...fetchOptions,
-        headers,
-      },
-      timeout,
-    );
+    // Log request details in development
+    if (process.env.NODE_ENV === "development") {
+      console.log(`[HTTPClient] ${fetchOptions.method || "GET"} ${url}`, {
+        requireAuth,
+        hasAuthToken: !!headers.Authorization,
+        timeout,
+      });
+    }
 
-    return this.handleResponse<T>(response);
+    try {
+      const response = await this.fetchWithTimeout(
+        url,
+        {
+          ...fetchOptions,
+          headers,
+        },
+        timeout,
+      );
+
+      // Log successful response in development
+      if (process.env.NODE_ENV === "development") {
+        console.log(`[HTTPClient] Response ${response.status} from ${url}`);
+      }
+
+      return this.handleResponse<T>(response);
+    } catch (error) {
+      // Log error details
+      console.error(`[HTTPClient] Request failed for ${url}:`, {
+        error:
+          error instanceof Error
+            ? { name: error.name, message: error.message }
+            : error,
+        method: fetchOptions.method || "GET",
+        requireAuth,
+      });
+      throw error;
+    }
   }
 
   /**

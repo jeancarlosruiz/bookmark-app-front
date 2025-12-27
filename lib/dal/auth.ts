@@ -84,12 +84,24 @@ export const authService = {
     });
   },
 
-  async getUserToken() {
-    const { token } = await auth.api.getToken({
-      headers: await headers(),
-    });
+  async getUserToken(): Promise<string | null> {
+    try {
+      const { token } = await auth.api.getToken({
+        headers: await headers(),
+      });
 
-    return token;
+      // Validate token exists and is non-empty
+      if (!token || typeof token !== "string" || token.trim() === "") {
+        console.warn("getUserToken: No valid token found in session");
+        return null;
+      }
+
+      return token;
+    } catch (error) {
+      // Log error but don't throw - allow graceful degradation
+      console.error("getUserToken: Failed to retrieve token", error);
+      return null;
+    }
   },
 
   async hasUserCookies(req: NextRequest) {

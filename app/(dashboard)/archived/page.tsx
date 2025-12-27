@@ -5,9 +5,24 @@ import { Archive } from "lucide-react";
 import { getArchivedBookmarksAction } from "@/actions/bookmarks";
 
 export default async function ArchivedPage() {
-  const { data: bookmarks } = await getArchivedBookmarksAction();
+  const result = await getArchivedBookmarksAction();
 
-  const data = bookmarks;
+  if (!result.success) {
+    return (
+      <section className="p-[var(--spacing-200,16px)] md:px-[32px] md:py-[var(--spacing-400,32px)] flex flex-col gap-5 md:pt-[var(--spacing-400,32px)]">
+        <BookmarkListHeader title="Archived bookmarks" />
+        <EmptyBookmarks
+          title="No archived bookmarks"
+          description="You haven't archived any bookmarks yet. Archived bookmarks are hidden from your main collection but can be restored anytime."
+          icon={
+            <Archive className="w-12 h-12 text-[var(--neutral-500,#899492)] dark:text-[var(--neutral-500-dark,#004241)]" />
+          }
+        />
+      </section>
+    );
+  }
+
+  const data = result.data;
 
   return (
     <section className="p-[var(--spacing-200,16px)] md:px-[32px] md:py-[var(--spacing-400,32px)] flex flex-col gap-5 md:pt-[var(--spacing-400,32px)]">

@@ -9,10 +9,19 @@ export default async function Home({
   searchParams: Promise<{ tags: string }>;
 }) {
   const { tags } = await searchParams;
-  console.log("Estos son los tags", tags);
-  const { data: bookmarks } = await getBookmarksAction(tags);
 
-  const data = bookmarks;
+  const result = await getBookmarksAction(tags);
+
+  if (!result.success) {
+    return (
+      <section className="p-[var(--spacing-200,16px)] md:px-[32px] md:py-[var(--spacing-400,32px)] flex flex-col gap-5 md:pt-[var(--spacing-400,32px)]">
+        <BookmarkListHeader />
+        <EmptyBookmarks />
+      </section>
+    );
+  }
+
+  const data = result.data;
 
   return (
     <section className="p-[var(--spacing-200,16px)] md:px-[32px] md:py-[var(--spacing-400,32px)] flex flex-col gap-5 md:pt-[var(--spacing-400,32px)]">
