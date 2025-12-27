@@ -1,4 +1,3 @@
-import * as React from "react";
 import { BookmarkCardSkeleton } from "@/components/organisms/bookmark-card-skeleton";
 import { Button } from "@/components/atoms/button";
 import { ArrowUpDown } from "lucide-react";

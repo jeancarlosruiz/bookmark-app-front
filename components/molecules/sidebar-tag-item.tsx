@@ -3,23 +3,31 @@
 import { Checkbox } from "@/components/atoms/checkbox";
 import { Badge } from "@/components/atoms/badge";
 import { TagsType } from "@/lib/zod/tag";
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useState, useEffect, useTransition } from "react";
 import { EmptyTags } from "./empty-tags";
 import { ScrollArea } from "@/components/atoms/scroll-area";
+import { useQueryState, parseAsArrayOf, parseAsString } from "nuqs";
+import { Loader2 } from "lucide-react";
 
 export interface SidebarTagItemProps {
   tags: TagsType[];
 }
 
 const SidebarTagItem = ({ tags }: SidebarTagItemProps) => {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+  const [tagsQuery, setTagsQuery] = useQueryState(
+    "tags",
+    parseAsArrayOf(parseAsString, ",")
+      .withOptions({
+        startTransition,
+        shallow: false,
+      })
+      .withDefault([]),
+  );
 
   // Inicializar tags desde URL si existen
   const [tagsArr, setTagsArr] = useState(() => {
-    const urlTags = searchParams.get("tags")?.split(",").filter(Boolean) || [];
+    const urlTags = tagsQuery.filter(Boolean) || [];
 
     return tags.map((t) => ({
       ...t,
@@ -27,39 +35,23 @@ const SidebarTagItem = ({ tags }: SidebarTagItemProps) => {
     }));
   });
 
-  // Sincronizar con URL cuando cambian los searchParams
+  // Sincronizar estado local cuando cambia la URL (navegación con botones del navegador)
+  // o cuando cambian los tags (recarga de datos)
   useEffect(() => {
-    const urlTags = searchParams.get("tags")?.split(",").filter(Boolean) || [];
+    const urlTags = tagsQuery.filter(Boolean) || [];
 
-    setTagsArr((prevTags) =>
-      prevTags.map((t) => ({
+    setTagsArr(
+      tags.map((t) => ({
         ...t,
         isChecked: urlTags.includes(t.title),
       })),
     );
-  }, [searchParams]);
+  }, [tagsQuery, tags]);
 
   const haveTagsChecked = tagsArr.some((t) => t.isChecked === true);
 
-  // Función para actualizar la URL con los tags seleccionados
   const updateURL = (selectedTags: string[]) => {
-    const params = new URLSearchParams(searchParams.toString());
-
-    if (selectedTags.length > 0) {
-      // Agregar tags a URL (formato: tags=AI,CSS,Git)
-      params.set("tags", selectedTags.join(","));
-    } else {
-      // Remover parámetro si no hay tags
-      params.delete("tags");
-    }
-
-    // Construir nueva URL
-    const newURL = params.toString()
-      ? `${pathname}?${params.toString()}`
-      : pathname;
-
-    // Actualizar URL (trigger re-render del Server Component)
-    router.push(newURL);
+    setTagsQuery(selectedTags);
   };
 
   const toggleIsChecked = (id: number) => {
@@ -101,8 +93,11 @@ const SidebarTagItem = ({ tags }: SidebarTagItemProps) => {
     <>
       {/* Subheading */}
       <div className="flex items-center min-h-[1.5rem] pb-[var(--spacing-xs,4px)] pt-0 px-[var(--spacing-150,12px)] w-full">
-        <p className="flex-1 font-bold text-[12px] leading-[1.4] text-[#4d4d4d] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
+        <p className="flex-1 font-bold text-[12px] leading-[1.4] text-[#4d4d4d] dark:text-[var(--neutral-100-dark,#b1b9b9)] flex items-center gap-2">
           TAGS
+          {isPending && (
+            <Loader2 className="h-3 w-3 animate-spin text-[var(--neutral-500,#899492)] dark:text-[var(--neutral-100-dark,#b1b9b9)]" />
+          )}
         </p>
 
         {haveTagsChecked && (
@@ -120,32 +115,35 @@ const SidebarTagItem = ({ tags }: SidebarTagItemProps) => {
 
       <ScrollArea className="w-full flex-1 h-full">
         {/* Tag list */}
-        {tagsArr && tagsArr.length > 0 ? (
-          <div className="pb-[15px]">
-            {tagsArr.map(({ id, title, totalBookmarks, isChecked }) => (
-              <div
-                key={id}
-                className="flex items-center overflow-hidden px-0 py-[var(--spacing-xxs,2px)] w-full cursor-pointer"
-                // onClick={() => toggleIsChecked(id)}
-              >
-                <div className="flex-1 flex gap-[var(--spacing-lg,12px)] items-center px-[var(--spacing-lg,12px)] py-[var(--spacing-md,8px)] rounded-[var(--radius-sm,6px)] bg-transparent hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)] transition-colors">
-                  <div className="flex gap-[var(--spacing-md,8px)] items-center flex-1">
-                    <Checkbox
-                      checked={isChecked}
-                      onChange={() => toggleIsChecked(id)}
-                    />
-                    <p className="font-semibold text-[16px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] whitespace-nowrap">
-                      {title}
-                    </p>
+        <div className={isPending ? "opacity-50 pointer-events-none" : ""}>
+          {tagsArr && tagsArr.length > 0 ? (
+            <div className="pb-[15px]">
+              {tagsArr.map(({ id, title, totalBookmarks, isChecked }) => (
+                <div
+                  key={id}
+                  className="flex items-center overflow-hidden px-0 py-[var(--spacing-xxs,2px)] w-full cursor-pointer"
+                  // onClick={() => toggleIsChecked(id)}
+                >
+                  <div className="flex-1 flex gap-[var(--spacing-lg,12px)] items-center px-[var(--spacing-lg,12px)] py-[var(--spacing-md,8px)] rounded-[var(--radius-sm,6px)] bg-transparent hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)] transition-colors">
+                    <div className="flex gap-[var(--spacing-md,8px)] items-center flex-1">
+                      <Checkbox
+                        checked={isChecked}
+                        onChange={() => toggleIsChecked(id)}
+                        disabled={isPending}
+                      />
+                      <p className="font-semibold text-[16px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] whitespace-nowrap">
+                        {title}
+                      </p>
+                    </div>
+                    <Badge>{totalBookmarks}</Badge>
                   </div>
-                  <Badge>{totalBookmarks}</Badge>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <EmptyTags />
-        )}
+              ))}
+            </div>
+          ) : (
+            <EmptyTags />
+          )}
+        </div>
       </ScrollArea>
     </>
   );
