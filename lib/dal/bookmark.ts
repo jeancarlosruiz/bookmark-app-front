@@ -4,9 +4,19 @@ import { httpClient } from "./http-client";
 /**
  * Bookmark type definitions
  */
+
+export interface IPagination {
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
 export interface Bookmark {
   message: string;
   data: BookmarkType[];
+  pagination: IPagination;
 }
 
 export interface CreateBookmarkInput extends CreateBookmarkType {
@@ -23,14 +33,35 @@ export interface UpdateBookmarkInput {
 }
 
 /**
+ * Query parameters for bookmark requests
+ */
+export interface BookmarkQueryParams {
+  page?: string;
+  limit?: string;
+  sort?: string;
+  tags?: string;
+}
+
+/**
  * Bookmark Data Access Layer
  */
 export const bookmarkService = {
   /**
    * Get all bookmarks for the current user
    */
-  async getUserBookmarks(userId: string): Promise<Bookmark> {
-    return httpClient.get<Bookmark>(`/bookmark/user/${userId}`);
+  async getUserBookmarks(
+    userId: string,
+    params?: BookmarkQueryParams,
+  ): Promise<Bookmark> {
+    const queryParams = new URLSearchParams({
+      page: params?.page || "1",
+      limit: params?.limit || "10",
+      ...(params?.sort && { sort: params.sort }),
+    });
+
+    return httpClient.get<Bookmark>(
+      `/bookmark/user/${userId}?${queryParams.toString()}`,
+    );
   },
 
   /**
@@ -95,30 +126,75 @@ export const bookmarkService = {
   /**
    * Search bookmarks by title or tags
    */
-  async searchBookmarks(userId: string, query: string): Promise<Bookmark> {
+  async searchBookmarks(
+    userId: string,
+    query: string,
+    params?: BookmarkQueryParams,
+  ): Promise<Bookmark> {
+    const queryParams = new URLSearchParams({
+      q: encodeURIComponent(query),
+      ...(params?.page && { page: params.page }),
+      ...(params?.limit && { limit: params.limit }),
+      ...(params?.sort && { sort: params.sort }),
+    });
+
     return httpClient.get<Bookmark>(
-      `/bookmark/user/${userId}/search?q=${encodeURIComponent(query)}`,
+      `/bookmark/user/${userId}/search?${queryParams.toString()}`,
     );
   },
 
   /**
    * Filter bookmarks by tags
    */
-  async filterByTags(userId: string, tags: string): Promise<Bookmark> {
-    return httpClient.get<Bookmark>(`/bookmark/tags?q=${tags}`);
+  async filterByTags(
+    tags: string,
+    params?: BookmarkQueryParams,
+  ): Promise<Bookmark> {
+    const queryParams = new URLSearchParams({
+      q: tags,
+      ...(params?.page && { page: params.page }),
+      ...(params?.limit && { limit: params.limit }),
+      ...(params?.sort && { sort: params.sort }),
+    });
+
+    return httpClient.get<Bookmark>(`/bookmark/tags?${queryParams.toString()}`);
   },
 
   /**
    * Get pinned bookmarks
    */
-  async getPinnedBookmarks(userId: string): Promise<Bookmark> {
-    return httpClient.get<Bookmark>(`/bookmark/user/${userId}?pinned=true`);
+  async getPinnedBookmarks(
+    userId: string,
+    params?: BookmarkQueryParams,
+  ): Promise<Bookmark> {
+    const queryParams = new URLSearchParams({
+      pinned: "true",
+      ...(params?.page && { page: params.page }),
+      ...(params?.limit && { limit: params.limit }),
+      ...(params?.sort && { sort: params.sort }),
+    });
+
+    return httpClient.get<Bookmark>(
+      `/bookmark/user/${userId}?${queryParams.toString()}`,
+    );
   },
 
   /**
    * Get archived bookmarks
    */
-  async getArchivedBookmarks(userId: string): Promise<Bookmark> {
-    return httpClient.get<Bookmark>(`/bookmark/user/${userId}/archived`);
+  async getArchivedBookmarks(
+    userId: string,
+    params?: BookmarkQueryParams,
+  ): Promise<Bookmark> {
+    const queryParams = new URLSearchParams({
+      ...(params?.page && { page: params.page }),
+      ...(params?.limit && { limit: params.limit }),
+      ...(params?.sort && { sort: params.sort }),
+    });
+
+    const queryString = queryParams.toString();
+    const url = `/bookmark/user/${userId}/archived${queryString ? `?${queryString}` : ""}`;
+
+    return httpClient.get<Bookmark>(url);
   },
 };

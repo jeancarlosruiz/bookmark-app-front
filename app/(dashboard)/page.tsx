@@ -2,15 +2,16 @@ import { BookmarkListHeader } from "@/components/organisms/bookmark-list-header"
 import { BookmarkCard } from "@/components/organisms/bookmark-card";
 import { EmptyBookmarks } from "@/components/organisms/empty-bookmarks";
 import { getBookmarksAction } from "@/actions/bookmarks";
+import { BookmarkQueryParams } from "@/lib/dal/bookmark";
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ tags: string }>;
+  searchParams: Promise<BookmarkQueryParams>;
 }) {
-  const { tags } = await searchParams;
+  const params = await searchParams;
 
-  const result = await getBookmarksAction(tags);
+  const result = await getBookmarksAction(params);
 
   if (!result.success) {
     return (

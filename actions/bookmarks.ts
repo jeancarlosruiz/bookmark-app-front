@@ -1,13 +1,14 @@
 "use server";
 
 import { authService } from "@/lib/dal/auth";
-import { bookmarkService } from "@/lib/dal/bookmark";
+import { BookmarkQueryParams, bookmarkService } from "@/lib/dal/bookmark";
 import { HTTPError } from "@/lib/dal/http-client";
 
 /**
  * Get all bookmarks for the current user
  */
-export const getBookmarksAction = async (tags: string | undefined) => {
+
+export const getBookmarksAction = async (params: BookmarkQueryParams) => {
   try {
     const userData = await authService.getCurrentUser();
 
@@ -18,15 +19,16 @@ export const getBookmarksAction = async (tags: string | undefined) => {
     const userId = userData.user.id;
     let bookmarks;
 
-    if (tags) {
-      bookmarks = await bookmarkService.filterByTags(userId, tags);
+    if (params.tags) {
+      bookmarks = await bookmarkService.filterByTags(params.tags, params);
     } else {
-      bookmarks = await bookmarkService.getUserBookmarks(userId);
+      bookmarks = await bookmarkService.getUserBookmarks(userId, params);
     }
 
     return {
       success: true,
       data: bookmarks.data,
+      pagination: bookmarks.pagination,
     };
   } catch (error) {
     // Handle HTTP errors with detailed information

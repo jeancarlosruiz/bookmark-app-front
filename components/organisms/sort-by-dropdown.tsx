@@ -29,6 +29,7 @@ const SortByDropdown = forwardRef<HTMLDivElement, SortByDropdownProps>(
   ({ className }, ref) => {
     const [currentSort, setCurrentSort] = useQueryState("sort", {
       defaultValue: "created",
+      shallow: false,
     });
 
     const handleSortChange = (value: SortByValue) => {
