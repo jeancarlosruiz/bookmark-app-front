@@ -3,9 +3,15 @@ import { BookmarkCard } from "@/components/organisms/bookmark-card";
 import { EmptyBookmarks } from "@/components/organisms/empty-bookmarks";
 import { Archive } from "lucide-react";
 import { getArchivedBookmarksAction } from "@/actions/bookmarks";
+import { BookmarkQueryParams } from "@/lib/dal/bookmark";
 
-export default async function ArchivedPage() {
-  const result = await getArchivedBookmarksAction();
+export default async function ArchivedPage({
+  searchParams,
+}: {
+  searchParams: Promise<BookmarkQueryParams>;
+}) {
+  const params = await searchParams;
+  const result = await getArchivedBookmarksAction(params);
 
   if (!result.success) {
     return (

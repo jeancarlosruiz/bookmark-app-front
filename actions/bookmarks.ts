@@ -115,7 +115,9 @@ export const updateBookmarkAction = async (
 /**
  * Get all archived bookmarks for the current user
  */
-export const getArchivedBookmarksAction = async () => {
+export const getArchivedBookmarksAction = async (
+  params: BookmarkQueryParams,
+) => {
   try {
     const userData = await authService.getCurrentUser();
 
@@ -124,11 +126,15 @@ export const getArchivedBookmarksAction = async () => {
     }
 
     const userId = userData.user.id;
-    const bookmarks = await bookmarkService.getArchivedBookmarks(userId);
+    const bookmarks = await bookmarkService.getArchivedBookmarks(
+      userId,
+      params,
+    );
 
     return {
       success: true,
       data: bookmarks.data,
+      pagination: bookmarks.pagination,
     };
   } catch (error) {
     // Handle HTTP errors with detailed information
