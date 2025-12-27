@@ -1,15 +1,18 @@
 /**
  * Environment Configuration & Validation
  *
- * This module validates and exports all required environment variables
- * at application startup. If any required variables are missing or invalid,
- * it throws a clear error message to prevent runtime issues.
+ * IMPORTANT: This module only validates environment variables in DEVELOPMENT mode
+ * and only on the SERVER SIDE to prevent issues with Next.js client-side builds.
+ *
+ * In production, environment variables are assumed to be correctly configured
+ * by your hosting platform (Vercel, Railway, etc.).
  *
  * Usage:
  * ```ts
  * import { env } from "@/lib/config/env";
  *
- * const apiUrl = env.API_URL; // Guaranteed to exist and be valid
+ * const apiUrl = env.API_URL; // Server-side only
+ * const publicUrl = env.NEXT_PUBLIC_API_URL; // Available everywhere
  * ```
  */
 
@@ -74,8 +77,32 @@ function validateNonEmpty(value: string | undefined, name: string): string {
 
 /**
  * Validates all environment variables
+ * Only runs in development mode and on the server side
  */
 function validateEnv(): EnvSchema {
+  // Skip validation if:
+  // 1. Not in development mode (production handles env vars via platform)
+  // 2. Running on client side (browser - can't access server-only vars)
+  const isServer = typeof window === "undefined";
+  const isDevelopment = process.env.NODE_ENV === "development";
+
+  if (!isDevelopment || !isServer) {
+    // In production or on client, return env vars without validation
+    return {
+      DATABASE_URL: process.env.DATABASE_URL || "",
+      BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET || "",
+      BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || "",
+      NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "",
+      GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || "",
+      GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || "",
+      RESEND_API_KEY: process.env.RESEND_API_KEY || "",
+      RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL || "",
+      API_URL: process.env.API_URL || "",
+      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "",
+      NODE_ENV: (process.env.NODE_ENV as EnvSchema["NODE_ENV"]) || "development",
+    };
+  }
+
   const errors: string[] = [];
 
   // Helper to validate and collect errors
@@ -151,12 +178,17 @@ function validateEnv(): EnvSchema {
     validateURL(url, "NEXT_PUBLIC_API_URL");
   }, "NEXT_PUBLIC_API_URL validation failed");
 
-  // If there are any errors, throw them all at once
+  // If there are any errors, throw them all at once (DEVELOPMENT ONLY)
   if (errors.length > 0) {
+    console.error(
+      `\n❌ Environment validation failed in DEVELOPMENT:\n\n${errors.map((e, i) => `${i + 1}. ${e}`).join("\n")}\n\nPlease check your .env.local file and ensure all required variables are set correctly.\n`,
+    );
     throw new Error(
       `Environment validation failed:\n\n${errors.map((e, i) => `${i + 1}. ${e}`).join("\n")}\n\nPlease check your .env.local file and ensure all required variables are set correctly.`,
     );
   }
+
+  console.log("✅ All environment variables validated successfully (DEVELOPMENT)");
 
   return {
     DATABASE_URL: process.env.DATABASE_URL!,

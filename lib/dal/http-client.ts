@@ -1,5 +1,4 @@
 import { authService } from "./auth";
-import { env } from "../config/env";
 
 /**
  * Get the appropriate API URL based on execution context
@@ -7,13 +6,41 @@ import { env } from "../config/env";
  * Client-side: Use NEXT_PUBLIC_API_URL
  */
 function getBaseURL(): string {
-  // Server-side execution (Node.js) - use server-only API_URL
+  // Server-side execution (Node.js)
   if (typeof window === "undefined") {
-    return env.API_URL;
+    const url = process.env.API_URL;
+    if (!url) {
+      throw new Error(
+        "API_URL environment variable is not defined. Check your .env.local file.",
+      );
+    }
+    // Validate URL format
+    try {
+      new URL(url);
+      return url;
+    } catch {
+      throw new Error(
+        `Invalid API_URL format: "${url}". Must be a valid URL (e.g., https://example.com/api)`,
+      );
+    }
   }
 
-  // Client-side execution (browser) - use public API_URL
-  return env.NEXT_PUBLIC_API_URL;
+  // Client-side execution (browser)
+  const url = process.env.NEXT_PUBLIC_API_URL;
+  if (!url) {
+    throw new Error(
+      "NEXT_PUBLIC_API_URL environment variable is not defined. Check your .env.local file.",
+    );
+  }
+  // Validate URL format
+  try {
+    new URL(url);
+    return url;
+  } catch {
+    throw new Error(
+      `Invalid NEXT_PUBLIC_API_URL format: "${url}". Must be a valid URL (e.g., https://example.com/api)`,
+    );
+  }
 }
 
 /**
