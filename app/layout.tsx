@@ -31,7 +31,13 @@ export default function RootLayout({
             enableColorScheme
           >
             {children}
-            <Toaster duration={2000} />
+            <Toaster
+              duration={2000}
+              position="top-right"
+              offset={{
+                top: "100px",
+              }}
+            />
           </ThemeProvider>
         </NuqsAdapter>
       </body>

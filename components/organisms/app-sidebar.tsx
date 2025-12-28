@@ -6,9 +6,7 @@ import {
   SidebarHeader,
 } from "@/components/atoms/sidebar";
 import { SidebarTagItem } from "@/components/molecules/sidebar-tag-item";
-import { EmptyTags } from "@/components/molecules/empty-tags";
 import BookmarkLogo from "../atoms/logo";
-import { ScrollArea } from "@/components/atoms/scroll-area";
 import { getTagsAction } from "@/actions/tags";
 import { TagsType } from "@/lib/zod/tag";
 import NavigationList from "../molecules/navigation-list";
