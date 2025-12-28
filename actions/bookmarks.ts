@@ -153,6 +153,53 @@ export const toggleArchived = async (id: number) => {
   }
 };
 
+/**
+ * Soft delete bookmark
+ */
+
+export const deleteBookmark = async (id: number) => {
+  try {
+    const userData = await authService.getCurrentUser();
+
+    if (!userData?.user?.id) {
+      throw new Error("User not authenticated");
+    }
+
+    await bookmarkService.deleteBookmark(id);
+
+    // Revalidate paths to refresh bookmark lists
+    revalidatePath("/");
+    revalidatePath("/archived");
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    // Handle HTTP errors with detailed information
+    if (error instanceof HTTPError) {
+      console.error("HTTP Error:", {
+        status: error.status,
+        statusText: error.statusText,
+        url: error.url,
+        message: error.message,
+      });
+
+      return {
+        success: false,
+        error: error.message,
+        status: error.status,
+      };
+    }
+
+    // Handle other errors
+    console.error("Error fetching bookmarks:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+};
+
 export interface CREATE_BOOKMARK_STATE {
   status: "idle" | "pending" | "success" | "error";
   errors?: Record<string, string> | null;

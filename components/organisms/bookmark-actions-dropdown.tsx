@@ -21,7 +21,11 @@ import {
 import { toast } from "sonner";
 import EditBookmarkForm from "./edit-bookmark-form";
 import { BookmarkType } from "@/lib/zod/bookmark";
-import { toggleArchived, togglePinned } from "@/actions/bookmarks";
+import {
+  deleteBookmark,
+  toggleArchived,
+  togglePinned,
+} from "@/actions/bookmarks";
 
 export interface BookmarkActionsDropdownProps {
   trigger?: React.ReactNode;
@@ -118,9 +122,31 @@ const BookmarkActionsDropdown = forwardRef<
   const onEdit = () => {
     setIsDialogOpen(true);
   };
-  const onArchive = () => {};
-  const onUnarchive = () => {};
-  const onDelete = () => {};
+
+  const onDelete = async (bookmarkId: number) => {
+    setIsDisabled(true);
+
+    try {
+      const result = await deleteBookmark(bookmarkId);
+
+      if (result.success) {
+        toast("Bookmark deleted.", {
+          icon: <Trash2 className="size-5" />,
+        });
+      } else {
+        toast.error("Failed to delete bookmark", {
+          description: result.error || "Please try again",
+        });
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred", {
+        description: "Please try again later",
+      });
+      console.error("Toggle pin error:", error);
+    } finally {
+      setIsDisabled(false);
+    }
+  };
 
   return (
     <>
@@ -258,7 +284,7 @@ const BookmarkActionsDropdown = forwardRef<
                 "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
                 "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
               )}
-              onClick={onDelete}
+              onClick={() => onDelete(bookmark.id)}
             >
               <Trash2
                 className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"

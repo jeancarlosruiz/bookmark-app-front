@@ -96,7 +96,7 @@ export const bookmarkService = {
   /**
    * Delete a bookmark
    */
-  async deleteBookmark(bookmarkId: string): Promise<void> {
+  async deleteBookmark(bookmarkId: number): Promise<void> {
     return httpClient.delete<void>(`/bookmark/${bookmarkId}`);
   },
 
