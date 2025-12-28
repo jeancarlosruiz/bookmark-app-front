@@ -3,6 +3,9 @@ import { BookmarkListHeader } from "../organisms/bookmark-list-header";
 import { EmptyBookmarks } from "../organisms/empty-bookmarks";
 import { BookmarkType } from "@/lib/zod/bookmark";
 import { BookmarkCard } from "../organisms/bookmark-card";
+import LoadMoreButton from "../molecules/load-more-button";
+
+// import BookmarkPagination from "../molecules/bookmark-pagination";
 
 export interface BookmarkContainerProps {
   title?: string;
@@ -41,7 +44,7 @@ export default function BookmarkContainer({
   const bookmarks = result.data;
 
   return (
-    <section className="p-[var(--spacing-200,16px)] md:px-[32px] md:py-[var(--spacing-400,32px)] flex flex-col gap-5 md:pt-[var(--spacing-400,32px)]">
+    <section className="flex-1 p-[var(--spacing-200,16px)] md:px-[32px] md:py-[var(--spacing-400,32px)] flex flex-col gap-5 md:pt-[var(--spacing-400,32px)]">
       <BookmarkListHeader title={title} />
 
       {/* Bookmark Grid */}
@@ -59,6 +62,9 @@ export default function BookmarkContainer({
           buttonText={emptyState?.buttonText}
         />
       )}
+
+      {/* <BookmarkPagination pagination={result?.pagination} /> */}
+      <LoadMoreButton pagination={result.pagination!} />
     </section>
   );
 }

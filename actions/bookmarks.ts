@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { authService } from "@/lib/dal/auth";
 import { BookmarkQueryParams, bookmarkService } from "@/lib/dal/bookmark";
 import { HTTPError } from "@/lib/dal/http-client";
@@ -29,6 +30,102 @@ export const getBookmarksAction = async (params: BookmarkQueryParams) => {
       success: true,
       data: bookmarks.data,
       pagination: bookmarks.pagination,
+    };
+  } catch (error) {
+    // Handle HTTP errors with detailed information
+    if (error instanceof HTTPError) {
+      console.error("HTTP Error:", {
+        status: error.status,
+        statusText: error.statusText,
+        url: error.url,
+        message: error.message,
+      });
+
+      return {
+        success: false,
+        error: error.message,
+        status: error.status,
+      };
+    }
+
+    // Handle other errors
+    console.error("Error fetching bookmarks:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+};
+
+/**
+ * Pin/ Unpin bookmark
+ */
+
+export const togglePinned = async (id: number) => {
+  try {
+    const userData = await authService.getCurrentUser();
+
+    if (!userData?.user?.id) {
+      throw new Error("User not authenticated");
+    }
+
+    const result = await bookmarkService.togglePin(id);
+
+    // Revalidate paths to refresh bookmark lists
+    revalidatePath("/");
+    revalidatePath("/archived");
+
+    return {
+      success: true,
+      data: result.data,
+    };
+  } catch (error) {
+    // Handle HTTP errors with detailed information
+    if (error instanceof HTTPError) {
+      console.error("HTTP Error:", {
+        status: error.status,
+        statusText: error.statusText,
+        url: error.url,
+        message: error.message,
+      });
+
+      return {
+        success: false,
+        error: error.message,
+        status: error.status,
+      };
+    }
+
+    // Handle other errors
+    console.error("Error fetching bookmarks:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+};
+
+/**
+ * Archive/ Unarchive bookmark
+ */
+
+export const toggleArchived = async (id: number) => {
+  try {
+    const userData = await authService.getCurrentUser();
+
+    if (!userData?.user?.id) {
+      throw new Error("User not authenticated");
+    }
+
+    const result = await bookmarkService.toggleArchive(id);
+
+    // Revalidate paths to refresh bookmark lists
+    revalidatePath("/");
+    revalidatePath("/archived");
+
+    return {
+      success: true,
+      data: result.data,
     };
   } catch (error) {
     // Handle HTTP errors with detailed information

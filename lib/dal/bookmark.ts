@@ -19,6 +19,11 @@ export interface Bookmark {
   pagination: IPagination;
 }
 
+export interface UpdateBookmarkResponse {
+  message: string;
+  data: BookmarkType;
+}
+
 export interface CreateBookmarkInput extends CreateBookmarkType {
   userId: string;
 }
@@ -98,22 +103,19 @@ export const bookmarkService = {
   /**
    * Pin/unpin a bookmark
    */
-  async togglePin(bookmarkId: string, isPinned: boolean): Promise<Bookmark> {
-    return httpClient.patch<Bookmark>(`/bookmark/${bookmarkId}`, {
-      isPinned,
-    });
+  async togglePin(bookmarkId: number): Promise<UpdateBookmarkResponse> {
+    return httpClient.put<UpdateBookmarkResponse>(
+      `/bookmark/${bookmarkId}/toggle-pinned`,
+    );
   },
 
   /**
    * Archive/unarchive a bookmark
    */
-  async toggleArchive(
-    bookmarkId: string,
-    isArchived: boolean,
-  ): Promise<Bookmark> {
-    return httpClient.patch<Bookmark>(`/bookmark/${bookmarkId}`, {
-      isArchived,
-    });
+  async toggleArchive(bookmarkId: number): Promise<UpdateBookmarkResponse> {
+    return httpClient.put<UpdateBookmarkResponse>(
+      `/bookmark/${bookmarkId}/toggle-is-archived`,
+    );
   },
 
   /**

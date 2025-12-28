@@ -21,6 +21,7 @@ import {
 import { toast } from "sonner";
 import EditBookmarkForm from "./edit-bookmark-form";
 import { BookmarkType } from "@/lib/zod/bookmark";
+import { toggleArchived, togglePinned } from "@/actions/bookmarks";
 
 export interface BookmarkActionsDropdownProps {
   trigger?: React.ReactNode;
@@ -54,8 +55,66 @@ const BookmarkActionsDropdown = forwardRef<
     toast("Link copied to clipboard.", { icon: <Copy className="size-5" /> });
   };
 
-  const onPin = () => {};
-  const onUnpin = () => {};
+  const handleArchive = async (bookmarkId: number) => {
+    setIsDisabled(true);
+
+    try {
+      const result = await toggleArchived(bookmarkId);
+
+      if (result.success) {
+        const isArchived = result.data?.isArchived;
+        toast(isArchived ? "Bookmark archived." : "Bookmark restored.", {
+          icon: isArchived ? (
+            <Archive className="size-5" />
+          ) : (
+            <RotateCcw className="size-5" />
+          ),
+        });
+      } else {
+        toast.error("Failed to update bookmark", {
+          description: result.error || "Please try again",
+        });
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred", {
+        description: "Please try again later",
+      });
+      console.error("Toggle pin error:", error);
+    } finally {
+      setIsDisabled(false);
+    }
+  };
+
+  const handleTogglePin = async (bookmarkId: number) => {
+    setIsDisabled(true);
+
+    try {
+      const result = await togglePinned(bookmarkId);
+
+      if (result.success) {
+        const isPinned = result.data?.pinned;
+        toast(isPinned ? "Bookmark pinned to top." : "Bookmark unpinned.", {
+          icon: isPinned ? (
+            <Pin className="size-5" />
+          ) : (
+            <PinOff className="size-5" />
+          ),
+        });
+      } else {
+        toast.error("Failed to update bookmark", {
+          description: result.error || "Please try again",
+        });
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred", {
+        description: "Please try again later",
+      });
+      console.error("Toggle pin error:", error);
+    } finally {
+      setIsDisabled(false);
+    }
+  };
+
   const onEdit = () => {
     setIsDialogOpen(true);
   };
@@ -123,7 +182,7 @@ const BookmarkActionsDropdown = forwardRef<
                 "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
               )}
               disabled={isDisabled}
-              onClick={onUnarchive}
+              onClick={() => handleArchive(bookmark.id)}
             >
               <RotateCcw
                 className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
@@ -141,7 +200,7 @@ const BookmarkActionsDropdown = forwardRef<
                 "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
               )}
               disabled={isDisabled}
-              onClick={onUnpin}
+              onClick={() => handleTogglePin(bookmark.id)}
             >
               <PinOff
                 className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
@@ -159,7 +218,7 @@ const BookmarkActionsDropdown = forwardRef<
                 "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
               )}
               disabled={isDisabled}
-              onClick={onPin}
+              onClick={() => handleTogglePin(bookmark.id)}
             >
               <Pin
                 className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
@@ -216,7 +275,7 @@ const BookmarkActionsDropdown = forwardRef<
                 "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
                 "focus:bg-[var(--neutral-100,#e8f0ef)] dark:focus:bg-[var(--neutral-600-dark,#002e2d)]",
               )}
-              onClick={onArchive}
+              onClick={() => handleArchive(bookmark.id)}
             >
               <Archive
                 className="size-4 shrink-0 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"

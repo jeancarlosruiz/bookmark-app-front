@@ -27,8 +27,6 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
 
     const router = useRouter();
 
-    console.log("Esta es la sesion: ", session);
-
     // En rutas protegidas, session.user siempre existe (validado por middleware)
     // isAnonymous indica si el usuario está en modo anónimo
     const isAuthenticated = !session?.user?.isAnonymous;

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { tagSchema } from "./tag";
 
 export const bookmarkSchema = z.object({
-  id: z.string(),
+  id: z.number(),
   createdAt: z.string(),
   updatedAt: z.string(),
   deletedAt: z.string(),

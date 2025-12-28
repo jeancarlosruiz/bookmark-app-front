@@ -4,7 +4,7 @@ import DialogContainer from "../molecules/dialog-container";
 import { Input } from "../atoms/input";
 import { Button } from "../atoms/button";
 import { Textarea } from "../atoms/textarea";
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 import {
   UPDATE_BOOKMARK_STATE,
   updateBookmarkAction,
@@ -22,6 +22,7 @@ const EditBookmarkForm = ({
   setDialogOpen,
   bookmark,
 }: EditBookmarkFormProps) => {
+  const tagsStr = bookmark.tags.map((t) => t.title).join(",");
   const initialState: UPDATE_BOOKMARK_STATE = {
     status: "idle",
     errors: null,
@@ -29,7 +30,7 @@ const EditBookmarkForm = ({
       title: bookmark.title,
       description: bookmark.description,
       url: bookmark.url,
-      tags: "",
+      tags: tagsStr,
     },
   };
 
@@ -73,8 +74,7 @@ const EditBookmarkForm = ({
           label="Tags"
           placeholder="e.g. Design, Learning, Tools"
           name="tags"
-          // Esto hay que converitrlo a un string de tags
-          // defaultValue={state.fields?.tags}
+          defaultValue={state.fields?.tags}
         />
 
         {/* Buttons */}
