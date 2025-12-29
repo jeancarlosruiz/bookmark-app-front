@@ -24,7 +24,6 @@ const BookmarkCard = React.forwardRef<HTMLDivElement, BookmarkCardProps>(
       visitCount,
       lastVisited,
       createdAt,
-      isArchived,
     } = bookmark;
 
     return (
@@ -32,7 +31,6 @@ const BookmarkCard = React.forwardRef<HTMLDivElement, BookmarkCardProps>(
         ref={ref}
         className={cn(
           "bg-white dark:bg-[var(--neutral-800-dark,#001f1f)] flex flex-col items-start overflow-hidden rounded-[12px] shadow-[0px_2px_4px_0px_rgba(21,21,21,0.06)] w-full",
-          isArchived && "opacity-60",
           className,
         )}
       >
@@ -41,14 +39,7 @@ const BookmarkCard = React.forwardRef<HTMLDivElement, BookmarkCardProps>(
           {/* Header */}
           <div className="flex gap-[var(--spacing-150,12px)] items-start w-full">
             <BookmarkCardHeader logo={favicon} title={title} url={url} />
-            <BookmarkActionsDropdown
-              trigger={
-                <IconButton size="sm" variant="default" aria-label="Options">
-                  <MoreVertical className="size-5" />
-                </IconButton>
-              }
-              bookmark={bookmark}
-            />
+            <BookmarkActionsDropdown bookmark={bookmark} />
           </div>
 
           {/* Divider */}
