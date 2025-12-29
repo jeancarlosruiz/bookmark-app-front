@@ -121,8 +121,10 @@ export const bookmarkService = {
   /**
    * Increment view count and update last visited
    */
-  async recordVisit(bookmarkId: string): Promise<Bookmark> {
-    return httpClient.post<Bookmark>(`/bookmark/${bookmarkId}/visit`, {});
+  async recordVisit(bookmarkId: number): Promise<UpdateBookmarkResponse> {
+    return httpClient.put<UpdateBookmarkResponse>(
+      `/bookmark/view-count/${bookmarkId}`,
+    );
   },
 
   /**

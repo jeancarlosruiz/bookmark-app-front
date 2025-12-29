@@ -25,6 +25,7 @@ import { ConfirmationDialog } from "@/components/molecules/confirmation-dialog";
 import { BookmarkType } from "@/lib/zod/bookmark";
 import {
   deleteBookmark,
+  incrementCount,
   toggleArchived,
   togglePinned,
 } from "@/actions/bookmarks";
@@ -252,10 +253,13 @@ const BookmarkActionsDropdown = forwardRef<
         break;
       case OPERATIONS.VISIT:
         try {
-          // Aqui se ejecutara una llamada http para aumentar el conteo de visitas
-          await sleep();
-          window.open(bookmark.url, "_blank", "noopener,noreferrer");
-          dispatch({ type: "SUCCESS" });
+          const result = await incrementCount(bookmark.id);
+          if (result.success) {
+            window.open(bookmark.url, "_blank", "noopener,noreferrer");
+            dispatch({ type: "SUCCESS" });
+          } else {
+            dispatch({ type: "ERROR" });
+          }
         } catch (error) {
           dispatch({ type: "ERROR" });
         }
@@ -270,9 +274,6 @@ const BookmarkActionsDropdown = forwardRef<
         break;
     }
   };
-
-  const sleep = (ms: number = 2000) =>
-    new Promise((resolve) => setTimeout(resolve, ms));
 
   // Action handlers separated by item
   const handleVisit = async (event: Event) => {
