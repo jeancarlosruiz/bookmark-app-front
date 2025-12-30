@@ -8,6 +8,7 @@ import { EmptyTags } from "./empty-tags";
 import { ScrollArea } from "@/components/atoms/scroll-area";
 import { useQueryState, parseAsArrayOf, parseAsString } from "nuqs";
 import { Loader2 } from "lucide-react";
+import { useSearch } from "@/hooks/use-search";
 
 export interface SidebarTagItemProps {
   tags: TagsType[];
@@ -16,7 +17,7 @@ export interface SidebarTagItemProps {
 const SidebarTagItem = ({ tags }: SidebarTagItemProps) => {
   const [isPending, startTransition] = useTransition();
   const [tagsQuery, setTagsQuery] = useQueryState(
-    "tags",
+    "q",
     parseAsArrayOf(parseAsString, ",")
       .withOptions({
         startTransition,
@@ -24,6 +25,9 @@ const SidebarTagItem = ({ tags }: SidebarTagItemProps) => {
       })
       .withDefault([]),
   );
+
+  // También necesitamos acceso al query param de búsqueda para limpiarlo
+  const { setSearch } = useSearch();
 
   // Inicializar tags desde URL si existen
   const [tagsArr, setTagsArr] = useState(() => {
@@ -51,6 +55,11 @@ const SidebarTagItem = ({ tags }: SidebarTagItemProps) => {
   const haveTagsChecked = tagsArr.some((t) => t.isChecked === true);
 
   const updateURL = (selectedTags: string[]) => {
+    // Si hay tags seleccionados, limpiar el query param de búsqueda
+    if (selectedTags.length > 0) {
+      setSearch(null);
+    }
+
     setTagsQuery(selectedTags);
   };
 

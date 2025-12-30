@@ -1,6 +1,6 @@
 "use client";
 
-import { debounce, parseAsString, useQueryState } from "nuqs";
+import { debounce, parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 
 export const useSearch = () => {
   const [search, setSearch] = useQueryState(
@@ -8,15 +8,35 @@ export const useSearch = () => {
     parseAsString.withDefault("").withOptions({ shallow: false }),
   );
 
+  // También necesitamos acceso al query param de tags para limpiarlo
+  const [, setTagsQuery] = useQueryState(
+    "q",
+    parseAsArrayOf(parseAsString, ",").withDefault([]),
+  );
+
   const handleSearchQuery = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value, {
-      limitUrlUpdates: e.target.value === "" ? undefined : debounce(750),
+    const value = e.target.value;
+
+    // Si hay un valor de búsqueda, limpiar el filtro de tags
+    if (value.trim() !== "") {
+      setTagsQuery(null);
+    }
+
+    setSearch(value, {
+      limitUrlUpdates: value === "" ? undefined : debounce(750),
     });
   };
 
   const handleOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      setSearch(e.currentTarget.value);
+      const value = e.currentTarget.value;
+
+      // Si hay un valor de búsqueda, limpiar el filtro de tags
+      if (value.trim() !== "") {
+        setTagsQuery(null);
+      }
+
+      setSearch(value);
     }
   };
 

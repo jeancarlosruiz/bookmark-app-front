@@ -16,7 +16,5 @@ export default async function Home({
 
   const result = await getBookmarksAction(params);
 
-  console.log(result);
-
   return <DashboardPage result={result} searchQuery={params.search} />;
 }
