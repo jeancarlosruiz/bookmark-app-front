@@ -10,13 +10,14 @@ export interface BookmarkCardFooterProps {
   lastTimeVisited: string | null;
   createdAt: string;
   pinned: boolean;
+  isArchived: boolean;
   className?: string;
 }
 
 const BookmarkCardFooter = React.forwardRef<
   HTMLDivElement,
   BookmarkCardFooterProps
->(({ views, lastTimeVisited, createdAt, className, pinned }, ref) => {
+>(({ views, lastTimeVisited, createdAt, className, pinned, isArchived }, ref) => {
   const createdAtConverted = formatDate(createdAt);
   const lastTimeVisitedConverted = formatDate(lastTimeVisited);
 
@@ -82,22 +83,34 @@ const BookmarkCardFooter = React.forwardRef<
         </TooltipContent>
       </Tooltip>
 
-      {/* Pinned */}
-      {pinned && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="ml-auto cursor-pointer">
-              <Pin
-                className="size-4 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
-                strokeWidth={2}
-              />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">
-            <p>Pinned to top</p>
-          </TooltipContent>
-        </Tooltip>
-      )}
+      {/* Right side indicators */}
+      <div className="flex items-center gap-2 ml-auto">
+        {/* Pinned */}
+        {pinned && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="cursor-pointer">
+                <Pin
+                  className="size-4 text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+                  strokeWidth={2}
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Pinned to top</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
+
+        {/* Archived */}
+        {isArchived && (
+          <div className="bg-[var(--neutral-300,#dde9e7)] dark:bg-[var(--neutral-600-dark,#002e2d)] flex items-center justify-center px-[6px] rounded-[4px]">
+            <p className="font-medium text-[12px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] text-center whitespace-nowrap">
+              Archived
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 });

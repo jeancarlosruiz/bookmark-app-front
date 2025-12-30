@@ -1,13 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Menu } from "lucide-react";
+import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchBar } from "@/components/molecules/search-bar";
 import { Button } from "@/components/atoms/button";
 import { ProfileDropdown } from "@/components/organisms/profile-dropdown";
-import { useSidebar } from "@/components/atoms/sidebar";
 import AddBookmarkForm from "./add-bookmark-form";
+import MenuButton from "../molecules/menu-button";
 
 export interface AppHeaderProps {
   className?: string;
@@ -15,14 +15,7 @@ export interface AppHeaderProps {
 
 const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
   ({ className }, ref) => {
-    const [searchQuery, setSearchQuery] = React.useState("");
-    const { toggleSidebar } = useSidebar();
     const [openDialog, setOpenDialog] = React.useState(false);
-
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setSearchQuery(value);
-    };
 
     return (
       <>
@@ -36,24 +29,11 @@ const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
             className,
           )}
         >
-          {/* Hamburger Menu Button - Mobile/Tablet Only (< 1024px) */}
-          <Button
-            hierarchy="secondary"
-            size="md"
-            onClick={toggleSidebar}
-            className="lg:hidden shrink-0 p-[var(--spacing-125,10px)]"
-            aria-label="Toggle sidebar"
-          >
-            <Menu className="size-5" />
-          </Button>
+          <MenuButton />
 
           {/* Search Bar */}
           <div className="flex-1 min-w-0">
-            <SearchBar
-              value={searchQuery}
-              onChange={handleSearchChange}
-              containerClassName="w-full"
-            />
+            <SearchBar containerClassName="w-full" />
           </div>
 
           {/* Action Buttons */}

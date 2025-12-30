@@ -3,7 +3,10 @@ import BookmarkContainer, {
   BookmarkContainerProps,
 } from "../templates/bookmark-container";
 
-export default function ArchivedPage({ result }: BookmarkContainerProps) {
+export default function ArchivedPage({
+  result,
+  searchQuery,
+}: BookmarkContainerProps) {
   const emptyState = {
     title: "No archived bookmarks",
     description:
@@ -18,6 +21,7 @@ export default function ArchivedPage({ result }: BookmarkContainerProps) {
       title="Archived bookmarks"
       result={result}
       emptyState={emptyState}
+      searchQuery={searchQuery}
     />
   );
 }

@@ -22,6 +22,8 @@ export const getBookmarksAction = async (params: BookmarkQueryParams) => {
 
     if (params.tags) {
       bookmarks = await bookmarkService.filterByTags(params.tags, params);
+    } else if (params.search) {
+      bookmarks = await bookmarkService.searchBookmarks(params.search);
     } else {
       bookmarks = await bookmarkService.getUserBookmarks(userId, params);
     }

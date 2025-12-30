@@ -5,7 +5,7 @@ import { AppHeader } from "@/components/organisms/app-header";
 
 // Force dynamic rendering because AppSidebar uses authentication (headers/cookies)
 // This prevents Next.js from trying to statically render during build
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default function DashboardLayout({
   children,

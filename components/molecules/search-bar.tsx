@@ -1,14 +1,20 @@
+"use client";
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
+import { useSearch } from "@/hooks/use-search";
 
-export interface SearchBarProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
+export interface SearchBarProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "size"
+> {
   containerClassName?: string;
 }
 
 const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
   ({ className, containerClassName, ...props }, ref) => {
+    const { search, handleSearchQuery, handleOnKeyDown } = useSearch();
+
     return (
       <div
         className={cn(
@@ -21,6 +27,9 @@ const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
           <input
             ref={ref}
             type="text"
+            value={search}
+            onChange={handleSearchQuery}
+            onKeyDown={handleOnKeyDown}
             className={cn(
               "flex-1 min-w-0 bg-transparent outline-none",
               "font-medium text-[14px] leading-[1.5] tracking-[0.14px]",

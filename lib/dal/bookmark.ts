@@ -45,6 +45,7 @@ export interface BookmarkQueryParams {
   limit?: string;
   sort?: string;
   tags?: string;
+  search?: string;
 }
 
 /**
@@ -131,19 +132,18 @@ export const bookmarkService = {
    * Search bookmarks by title or tags
    */
   async searchBookmarks(
-    userId: string,
     query: string,
     params?: BookmarkQueryParams,
   ): Promise<Bookmark> {
     const queryParams = new URLSearchParams({
-      q: encodeURIComponent(query),
+      search: encodeURIComponent(query),
       ...(params?.page && { page: params.page }),
       ...(params?.limit && { limit: params.limit }),
       ...(params?.sort && { sort: params.sort }),
     });
 
     return httpClient.get<Bookmark>(
-      `/bookmark/user/${userId}/search?${queryParams.toString()}`,
+      `/bookmark/title?${queryParams.toString()}`,
     );
   },
 

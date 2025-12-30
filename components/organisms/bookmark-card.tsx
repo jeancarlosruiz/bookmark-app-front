@@ -24,6 +24,7 @@ const BookmarkCard = React.forwardRef<HTMLDivElement, BookmarkCardProps>(
       visitCount,
       lastVisited,
       createdAt,
+      isArchived,
     } = bookmark;
 
     return (
@@ -67,6 +68,7 @@ const BookmarkCard = React.forwardRef<HTMLDivElement, BookmarkCardProps>(
             lastTimeVisited={lastVisited}
             createdAt={createdAt}
             pinned={bookmark.pinned}
+            isArchived={isArchived}
           />
         </div>
       </article>

@@ -4,7 +4,7 @@ import { BookmarkQueryParams } from "@/lib/dal/bookmark";
 
 // Force dynamic rendering because this route uses authentication (headers/cookies)
 // This prevents Next.js from trying to statically render during build
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default async function Home({
   searchParams,
@@ -14,5 +14,5 @@ export default async function Home({
   const params = await searchParams;
   const result = await getArchivedBookmarksAction(params);
 
-  return <ArchivedPage result={result} />;
+  return <ArchivedPage result={result} searchQuery={params.search} />;
 }

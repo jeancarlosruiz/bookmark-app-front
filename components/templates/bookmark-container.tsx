@@ -4,11 +4,11 @@ import { EmptyBookmarks } from "../organisms/empty-bookmarks";
 import { BookmarkType } from "@/lib/zod/bookmark";
 import { BookmarkCard } from "../organisms/bookmark-card";
 import LoadMoreButton from "../molecules/load-more-button";
-
-// import BookmarkPagination from "../molecules/bookmark-pagination";
+import { Search } from "lucide-react";
 
 export interface BookmarkContainerProps {
   title?: string;
+  searchQuery?: string;
   emptyState?: {
     title: string;
     description: string;
@@ -26,16 +26,39 @@ export default function BookmarkContainer({
   result,
   title,
   emptyState,
+  searchQuery,
 }: BookmarkContainerProps) {
+  const hasSearchQuery = searchQuery && searchQuery.trim().length > 0;
+
+  const getEmptyStateProps = () => {
+    if (hasSearchQuery) {
+      return {
+        title: "No results found",
+        description: `We couldn't find any bookmarks matching "${searchQuery}". Try a different search term.`,
+        icon: (
+          <Search className="w-12 h-12 text-[var(--neutral-500,#899492)] dark:text-[var(--neutral-500-dark,#004241)]" />
+        ),
+        buttonText: undefined,
+      };
+    }
+    return {
+      title: emptyState?.title,
+      description: emptyState?.description,
+      icon: emptyState?.icon,
+      buttonText: emptyState?.buttonText,
+    };
+  };
+
   if (!result.success) {
+    const emptyProps = getEmptyStateProps();
     return (
       <section className="p-[var(--spacing-200,16px)] md:px-[32px] md:py-[var(--spacing-400,32px)] flex flex-col gap-5 md:pt-[var(--spacing-400,32px)]">
         <BookmarkListHeader title={title} />
         <EmptyBookmarks
-          title={emptyState?.title}
-          description={emptyState?.description}
-          icon={emptyState?.icon}
-          buttonText={emptyState?.buttonText}
+          title={emptyProps.title}
+          description={emptyProps.description}
+          icon={emptyProps.icon}
+          buttonText={emptyProps.buttonText}
         />
       </section>
     );
@@ -56,10 +79,10 @@ export default function BookmarkContainer({
         </div>
       ) : (
         <EmptyBookmarks
-          title={emptyState?.title}
-          description={emptyState?.description}
-          icon={emptyState?.icon}
-          buttonText={emptyState?.buttonText}
+          title={getEmptyStateProps().title}
+          description={getEmptyStateProps().description}
+          icon={getEmptyStateProps().icon}
+          buttonText={getEmptyStateProps().buttonText}
         />
       )}
 
