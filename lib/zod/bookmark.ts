@@ -19,12 +19,17 @@ export const bookmarkSchema = z.object({
 });
 
 export const CREATE_BOOKMARK_SCHEMA = z.object({
-  title: z.string(),
-  url: z.string(),
+  title: z
+    .string({ error: "Title is required" })
+    .min(1, { error: "Title is required" }),
+  url: z.url({ error: "Url is required" }).min(1),
   description: z.string().optional(),
-  tags: z.string().transform((tags) => {
-    return tags.split(",");
-  }),
+  tags: z
+    .string({ error: "At least one tag is required" })
+    .min(1, { error: "At least one tag is required" })
+    .transform((tags) => {
+      return tags.split(",");
+    }),
   favicon: z.string().optional(),
 });
 

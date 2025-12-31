@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { authService } from "@/lib/dal/auth";
 import { BookmarkQueryParams, bookmarkService } from "@/lib/dal/bookmark";
 import { HTTPError } from "@/lib/dal/http-client";
+import { CREATE_BOOKMARK_SCHEMA } from "@/lib/zod/bookmark";
+import { zodFlattenError } from "@/lib/zod/utils";
 
 /**
  * Get all bookmarks for the current user
@@ -262,14 +264,64 @@ export const createBookmarkAction = async (
   _: CREATE_BOOKMARK_STATE,
   formData: FormData,
 ): Promise<CREATE_BOOKMARK_STATE> => {
+  const userData = await authService.getCurrentUser();
+
+  if (!userData?.user?.id) {
+    throw new Error("User not authenticated");
+  }
+
+  const userId = userData.user.id;
+
+  const rawData = {
+    title: formData.get("title") as string,
+    description: formData.get("description") as string,
+    url: formData.get("url") as string,
+    tags: formData.get("tags") as string,
+    favicon: formData.get("favicon") as string,
+  };
+
+  console.log({ rawData });
+
   try {
+    const result = await CREATE_BOOKMARK_SCHEMA.safeParseAsync(rawData);
+    console.log({ result });
+
+    if (!result.success) {
+      const flattenedErrors = zodFlattenError(result.error);
+
+      return {
+        status: "error",
+        errors: {
+          title: flattenedErrors.fieldErrors.title?.[0] || "",
+          description: flattenedErrors.fieldErrors.description?.[0] || "",
+          url: flattenedErrors.fieldErrors.url?.[0] || "",
+          tags: flattenedErrors.fieldErrors.tags?.[0] || "",
+        },
+        fields: rawData,
+      };
+    }
+
+    const data = {
+      ...result.data,
+      user_id: userId,
+    };
+
+    console.log("enviando", { data });
+
+    await bookmarkService.createBookmark(data);
+
+    // Revalidate paths to refresh bookmark lists
+    revalidatePath("/");
+    revalidatePath("/archived");
+
     return {
       status: "success",
       errors: null,
     };
   } catch (error) {
+    console.log({ error });
     return {
-      status: "success",
+      status: "error",
       errors: null,
     };
   }
@@ -350,5 +402,37 @@ export const getArchivedBookmarksAction = async (
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
     };
+  }
+};
+
+export interface ScrapedMetadata {
+  title: string;
+  description: string;
+  favicon: string;
+}
+
+export interface MetadataResponse {
+  success: boolean;
+  data?: ScrapedMetadata;
+}
+
+export const getMetadata = async (url: string): Promise<MetadataResponse> => {
+  if (!url || !url.startsWith("http")) {
+    return { success: false };
+  }
+
+  try {
+    const result = await bookmarkService.getMetadata(url);
+
+    return {
+      success: true,
+      data: {
+        title: result.data?.title || "",
+        description: result.data?.description || "",
+        favicon: result.data?.favicon || "",
+      },
+    };
+  } catch (error) {
+    return { success: false };
   }
 };

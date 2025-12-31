@@ -25,8 +25,19 @@ export interface UpdateBookmarkResponse {
   data: BookmarkType;
 }
 
+export interface MetadataPreviewData {
+  title: string;
+  description: string;
+  favicon: string;
+}
+
+export interface MetadataPreviewResponse {
+  message: string;
+  data: MetadataPreviewData;
+}
+
 export interface CreateBookmarkInput extends CreateBookmarkType {
-  userId: string;
+  user_id: string;
 }
 
 export interface UpdateBookmarkInput {
@@ -169,5 +180,14 @@ export const bookmarkService = {
     const url = `/bookmark/user/${userId}/archived${searchParams(params)}`;
 
     return httpClient.get<Bookmark>(url);
+  },
+
+  /**
+   * Get url Metadata
+   */
+  async getMetadata(url: string): Promise<MetadataPreviewResponse> {
+    return httpClient.get<MetadataPreviewResponse>(
+      `/bookmark/preview?url=${url}`,
+    );
   },
 };
