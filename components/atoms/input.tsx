@@ -53,22 +53,22 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {/* Input container */}
           <div
             className={cn(
-              "relative flex items-center gap-[var(--spacing-100,8px)] px-[var(--spacing-150,12px)] py-[var(--spacing-150,12px)] rounded-[8px] border transition-all w-full",
+              "relative flex items-center gap-[var(--spacing-100,8px)] px-[var(--spacing-150,12px)] py-[var(--spacing-150,12px)] rounded-[var(--radius-8,8px)] border transition-all w-full",
               // Light mode default
               "bg-white border-[var(--neutral-500,#899492)]",
               // Light mode hover
               "hover:bg-[var(--neutral-100,#e8f0ef)]",
-              // Light mode focus
-              "focus-within:bg-white focus-within:border-[var(--neutral-500,#899492)] focus-within:shadow-[inset_0px_0px_0px_1px_rgba(10,13,18,0.18)]",
+              // Light mode focus - ring effect from Figma
+              "focus-within:bg-white focus-within:border-[var(--neutral-300,#dde9e7)] focus-within:shadow-[0px_0px_0px_2px_white,0px_0px_0px_4px_var(--teal-700,#014745),inset_0px_0px_0px_1px_rgba(10,13,18,0.18)]",
               // Dark mode default
-              "dark:bg-[var(--neutral-600-dark,#002e2d)] dark:border-[var(--neutral-300-dark,#00706e)]",
+              "dark:bg-[var(--neutral-600-dark,#002e2d)] dark:border-[var(--neutral-500-dark,#004241)]",
               // Dark mode hover
               "dark:hover:bg-[var(--neutral-500-dark,#004241)] dark:hover:border-[var(--neutral-400-dark,#004746)]",
-              // Dark mode focus
-              "dark:focus-within:bg-[var(--neutral-600-dark,#002e2d)] dark:focus-within:border-[var(--neutral-600-dark,#002e2d)] dark:focus-within:shadow-[inset_0px_0px_0px_1px_rgba(10,13,18,0.18)]",
+              // Dark mode focus - ring effect from Figma
+              "dark:focus-within:bg-[var(--neutral-600-dark,#002e2d)] dark:focus-within:border-[var(--neutral-500-dark,#004241)] dark:focus-within:shadow-[0px_0px_0px_2px_var(--neutral-800-dark,#001f1f),0px_0px_0px_4px_var(--neutral-100-dark,#b1b9b9),inset_0px_0px_0px_1px_rgba(10,13,18,0.18)]",
               // Error state
               isError &&
-                "border-[var(--red-800,#cb0a04)] hover:border-[var(--red-800,#cb0a04)] focus-within:border-[var(--red-800,#cb0a04)] dark:border-[var(--red-600,#fd4740)] dark:hover:border-[var(--red-600,#fd4740)] dark:focus-within:border-[var(--red-600,#fd4740)] focus-within:shadow-none",
+                "border-[var(--red-800,#cb0a04)] hover:border-[var(--red-800,#cb0a04)] focus-within:border-[var(--red-800,#cb0a04)] dark:border-[var(--red-600,#fd4740)] dark:hover:border-[var(--red-600,#fd4740)] dark:focus-within:border-[var(--red-600,#fd4740)] focus-within:shadow-none dark:focus-within:shadow-none",
               className
             )}
           >

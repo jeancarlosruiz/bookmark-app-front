@@ -250,7 +250,7 @@ export const deleteBookmark = async (id: number) => {
 };
 
 export interface CREATE_BOOKMARK_STATE {
-  status: "idle" | "pending" | "success" | "error";
+  status: "idle" | "success" | "error";
   errors?: Record<string, string> | null;
   fields?: {
     title: string;
@@ -280,11 +280,8 @@ export const createBookmarkAction = async (
     favicon: formData.get("favicon") as string,
   };
 
-  console.log({ rawData });
-
   try {
     const result = await CREATE_BOOKMARK_SCHEMA.safeParseAsync(rawData);
-    console.log({ result });
 
     if (!result.success) {
       const flattenedErrors = zodFlattenError(result.error);
@@ -306,8 +303,6 @@ export const createBookmarkAction = async (
       user_id: userId,
     };
 
-    console.log("enviando", { data });
-
     await bookmarkService.createBookmark(data);
 
     // Revalidate paths to refresh bookmark lists
@@ -319,7 +314,6 @@ export const createBookmarkAction = async (
       errors: null,
     };
   } catch (error) {
-    console.log({ error });
     return {
       status: "error",
       errors: null,

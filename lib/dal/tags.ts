@@ -1,4 +1,4 @@
-import { TagsType } from "../zod/tag";
+import { CreateTagInput, TagsType } from "../zod/tag";
 import { httpClient } from "./http-client";
 
 /**
@@ -7,6 +7,15 @@ import { httpClient } from "./http-client";
 export interface TagResponse {
   message: string;
   data: TagsType[];
+}
+
+export interface SingleTagResponse {
+  message: string;
+  data: TagsType;
+}
+
+export interface UpdateTagInput {
+  title: string;
 }
 
 /**
@@ -18,5 +27,29 @@ export const tagService = {
    */
   async getUserTags(userId: string): Promise<TagResponse> {
     return httpClient.get<TagResponse>(`/tags/${userId}`);
+  },
+
+  /**
+   * Create a new tag
+   */
+  async createTag(input: CreateTagInput): Promise<SingleTagResponse> {
+    return httpClient.post<SingleTagResponse>(`/tags`, input);
+  },
+
+  /**
+   * Update an existing tag
+   */
+  async updateTag(
+    tagId: number,
+    input: UpdateTagInput,
+  ): Promise<SingleTagResponse> {
+    return httpClient.put<SingleTagResponse>(`/tags/${tagId}`, input);
+  },
+
+  /**
+   * Delete a tag (only if it has no bookmarks attached)
+   */
+  async deleteTag(tagId: number): Promise<{ message: string }> {
+    return httpClient.delete<{ message: string }>(`/tags/${tagId}`);
   },
 };
