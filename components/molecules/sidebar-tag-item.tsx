@@ -15,7 +15,7 @@ export interface SidebarTagItemProps {
   tags: TagsType[];
 }
 
-const SidebarTagItem = ({ tags }: SidebarTagItemProps) => {
+const SidebarTagItem = ({ tags = [] }: SidebarTagItemProps) => {
   const [isPending, startTransition] = useTransition();
   const [tagsQuery, setTagsQuery] = useQueryState(
     "q",
@@ -24,16 +24,17 @@ const SidebarTagItem = ({ tags }: SidebarTagItemProps) => {
         startTransition,
         shallow: false,
       })
-      .withDefault([])
+      .withDefault([]),
   );
 
   const { setSearch } = useSearch();
 
   // Initialize tags from URL if they exist
   const [tagsArr, setTagsArr] = useState(() => {
+    const safeTags = Array.isArray(tags) ? tags : [];
     const urlTags = tagsQuery.filter(Boolean) || [];
 
-    return tags.map((t) => ({
+    return safeTags.map((t) => ({
       ...t,
       isChecked: urlTags.includes(t.title),
     }));
@@ -41,13 +42,14 @@ const SidebarTagItem = ({ tags }: SidebarTagItemProps) => {
 
   // Sync local state when URL changes or tags reload
   useEffect(() => {
+    const safeTags = Array.isArray(tags) ? tags : [];
     const urlTags = tagsQuery.filter(Boolean) || [];
 
     setTagsArr(
-      tags.map((t) => ({
+      safeTags.map((t) => ({
         ...t,
         isChecked: urlTags.includes(t.title),
-      }))
+      })),
     );
   }, [tagsQuery, tags]);
 

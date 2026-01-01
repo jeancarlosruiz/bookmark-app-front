@@ -15,11 +15,9 @@ import { Suspense } from "react";
 export async function AppSidebar() {
   const tags = await getTagsAction();
 
-  let data: TagsType[] | undefined = [];
-
-  if (tags.success === true) {
-    data = tags.data;
-  }
+  // Ensure data is always an array, even if the API returns undefined/null
+  const data: TagsType[] =
+    tags.success === true && Array.isArray(tags.data) ? tags.data : [];
 
   return (
     <Sidebar>
@@ -34,7 +32,7 @@ export async function AppSidebar() {
         {/* Tags */}
         <SidebarGroup className="flex flex-col items-start w-full p-0 flex-1 overflow-y-hidden">
           <Suspense fallback={<div className="w-full h-full" />}>
-            <SidebarTagItem tags={data!} />
+            <SidebarTagItem tags={data} />
           </Suspense>
         </SidebarGroup>
       </SidebarContent>
