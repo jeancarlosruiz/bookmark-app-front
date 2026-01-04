@@ -324,7 +324,7 @@ export function TagManagerSheet({ tags, trigger }: TagManagerSheetProps) {
                             </>
                           ) : (
                             <>
-                              <p className="flex-1 font-semibold text-[16px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] truncate">
+                              <p className="flex-1 font-semibold text-[16px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] truncate max-w-[15ch] mr-auto">
                                 {tag.title}
                               </p>
                               <span className="text-[12px] font-medium leading-[1.4] text-[var(--neutral-500,#899492)] dark:text-[var(--neutral-100-dark,#b1b9b9)] whitespace-nowrap">

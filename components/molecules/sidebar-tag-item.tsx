@@ -140,7 +140,7 @@ const SidebarTagItem = ({ tags = [] }: SidebarTagItemProps) => {
                         onChange={() => toggleIsChecked(id)}
                         disabled={isPending}
                       />
-                      <p className="font-semibold text-[16px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] truncate">
+                      <p className="font-semibold text-[16px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] truncate max-w-[15ch]">
                         {title}
                       </p>
                     </div>
