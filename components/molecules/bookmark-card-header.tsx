@@ -39,7 +39,7 @@ const BookmarkCardHeader = React.forwardRef<
         <h3 className="font-bold text-[20px] leading-[1.2] text-[var(--neutral-900,#051513)] dark:text-white truncate max-w-[20ch]">
           {title}
         </h3>
-        <p className="font-medium text-[12px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] whitespace-nowrap truncate">
+        <p className="font-medium text-[12px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] whitespace-nowrap truncate max-w-[30ch]">
           {url}
         </p>
       </div>

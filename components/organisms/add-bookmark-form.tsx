@@ -41,6 +41,7 @@ interface BookmarkFormState {
   fields: FormFields;
   userEdited: { title: boolean; description: boolean };
   lastFetchedUrl: string;
+  urlToFetch: string; // Only updates on blur, triggers fetch
 }
 
 type BookmarkFormAction =
@@ -60,6 +61,7 @@ const initialFormState: BookmarkFormState = {
   fields: { title: "", description: "", url: "", tags: "" },
   userEdited: { title: false, description: false },
   lastFetchedUrl: "",
+  urlToFetch: "",
 };
 
 function bookmarkFormReducer(
@@ -68,13 +70,17 @@ function bookmarkFormReducer(
 ): BookmarkFormState {
   switch (action.type) {
     case "URL_BLUR":
-      return { ...state, fields: { ...state.fields, url: action.url } };
+      return {
+        ...state,
+        fields: { ...state.fields, url: action.url },
+        urlToFetch: action.url, // This triggers the fetch useEffect
+      };
 
     case "METADATA_FETCH_STARTED":
       return {
         ...state,
         metadata: { status: "loading" },
-        lastFetchedUrl: state.fields.url,
+        lastFetchedUrl: state.urlToFetch,
       };
 
     case "METADATA_FETCH_SUCCEEDED":
@@ -102,9 +108,14 @@ function bookmarkFormReducer(
         fields: { ...state.fields, [action.field]: action.value },
       };
       // Mark as user-edited if title or description
+
       if (action.field === "title" || action.field === "description") {
-        newState.userEdited = { ...state.userEdited, [action.field]: true };
+        newState.userEdited = {
+          ...state.userEdited,
+          [action.field]: action.value !== "",
+        };
       }
+
       return newState;
     }
 
@@ -161,20 +172,20 @@ const FormContent = ({
     }
   }, [actionState.status, setDialogOpen]);
 
-  // Effect: fetch metadata when URL changes (triggered by URL_BLUR)
+  // Effect: fetch metadata only when URL blur occurs (not on every keystroke)
   useEffect(() => {
-    const { url } = formState.fields;
+    const { urlToFetch, lastFetchedUrl, metadata } = formState;
     const shouldFetch =
-      url &&
-      url !== formState.lastFetchedUrl &&
-      url.startsWith("http") &&
-      formState.metadata.status !== "loading";
+      urlToFetch &&
+      urlToFetch !== lastFetchedUrl &&
+      urlToFetch.startsWith("http") &&
+      metadata.status !== "loading";
 
     if (!shouldFetch) return;
 
     dispatch({ type: "METADATA_FETCH_STARTED" });
 
-    getMetadata(url).then((result) => {
+    getMetadata(urlToFetch).then((result) => {
       if (result.success && result.data) {
         dispatch({ type: "METADATA_FETCH_SUCCEEDED", data: result.data });
       } else {
@@ -182,7 +193,7 @@ const FormContent = ({
       }
     });
   }, [
-    formState.fields.url,
+    formState.urlToFetch,
     formState.lastFetchedUrl,
     formState.metadata.status,
   ]);
