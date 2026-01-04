@@ -25,8 +25,6 @@ const ProfileDropdown = React.forwardRef<HTMLDivElement, ProfileDropdownProps>(
   ({ className }, ref) => {
     const { data: session, isPending } = useSession();
 
-    console.log("Esta es la session", session);
-
     const router = useRouter();
 
     // En rutas protegidas, session.user siempre existe (validado por middleware)
