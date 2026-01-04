@@ -144,11 +144,8 @@ const tagReducer = (state: State, action: Actions): State => {
   }
 };
 
-export function TagManagerSheet({ tags = [], trigger }: TagManagerSheetProps) {
+export function TagManagerSheet({ tags, trigger }: TagManagerSheetProps) {
   const [state, dispatch] = React.useReducer(tagReducer, { status: "idle" });
-
-  // Ensure tags is always an array
-  const safeTags = Array.isArray(tags) ? tags : [];
 
   // Estamos en un proceso
   const isProcessing = state.status === "processing";
@@ -233,9 +230,9 @@ export function TagManagerSheet({ tags = [], trigger }: TagManagerSheetProps) {
             </button>
           )}
         </SheetTrigger>
-        <SheetContent className="w-full sm:w-[400px] sm:max-w-[450px] flex flex-col p-0 gap-0">
-          <SheetHeader className="px-[var(--spacing-200,16px)] sm:px-[var(--spacing-300,24px)] pt-[var(--spacing-300,24px)] pb-[var(--spacing-200,16px)] gap-[var(--spacing-100,8px)] text-left">
-            <SheetTitle className="text-[20px] sm:text-[24px] font-bold leading-[1.4] text-[var(--neutral-900,#051513)] dark:text-[var(--neutral-0-dark,#ffffff)]">
+        <SheetContent className="w-[400px] sm:w-[450px] flex flex-col p-0 gap-0">
+          <SheetHeader className="px-[var(--spacing-300,24px)] pt-[var(--spacing-300,24px)] pb-[var(--spacing-200,16px)] gap-[var(--spacing-100,8px)] text-left">
+            <SheetTitle className="text-[24px] font-bold leading-[1.4] text-[var(--neutral-900,#051513)] dark:text-[var(--neutral-0-dark,#ffffff)]">
               Manage tags
             </SheetTitle>
             <SheetDescription className="text-[14px] font-medium leading-[1.5] tracking-[0.14px] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-300-dark,#00706e)]">
@@ -243,7 +240,7 @@ export function TagManagerSheet({ tags = [], trigger }: TagManagerSheetProps) {
             </SheetDescription>
           </SheetHeader>
 
-          <div className="flex-1 px-[var(--spacing-200,16px)] sm:px-[var(--spacing-300,24px)] pb-[var(--spacing-200,16px)] overflow-hidden flex flex-col gap-[var(--spacing-200,16px)]">
+          <div className="flex-1 px-[var(--spacing-300,24px)] pb-[var(--spacing-200,16px)] overflow-hidden flex flex-col gap-[var(--spacing-200,16px)]">
             {/*Aqui va el formulario*/}
             <TagForm />
             <Separator />
@@ -254,12 +251,12 @@ export function TagManagerSheet({ tags = [], trigger }: TagManagerSheetProps) {
                 <span className="font-semibold text-[14px] leading-[1.4] text-[var(--neutral-900,#051513)] dark:text-[var(--neutral-0-dark,#ffffff)]">
                   Your tags
                 </span>
-                <Badge>{safeTags.length}</Badge>
+                <Badge>{tags.length}</Badge>
               </div>
 
-              <ScrollArea className="flex-1 -mx-[var(--spacing-100,8px)]">
+              <ScrollArea className="flex-1 h-full -mx-[var(--spacing-100,8px)]">
                 <div className="px-[var(--spacing-100,8px)]">
-                  {safeTags.length === 0 ? (
+                  {tags.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-[var(--spacing-600,48px)] text-center">
                       <p className="text-[14px] font-medium leading-[1.5] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
                         No tags yet
@@ -270,11 +267,11 @@ export function TagManagerSheet({ tags = [], trigger }: TagManagerSheetProps) {
                     </div>
                   ) : (
                     <div className="flex flex-col gap-[var(--spacing-50,4px)]">
-                      {safeTags.map((tag) => (
+                      {tags.map((tag) => (
                         <div
                           key={tag.id}
                           className={cn(
-                            "flex items-center gap-[var(--spacing-50,4px)] sm:gap-[var(--spacing-100,8px)] px-[var(--spacing-100,8px)] sm:px-[var(--spacing-150,12px)] py-[var(--spacing-100,8px)] rounded-[var(--radius-sm,6px)] transition-colors",
+                            "flex items-center gap-[var(--spacing-100,8px)] px-[var(--spacing-150,12px)] py-[var(--spacing-100,8px)] rounded-[var(--radius-sm,6px)] transition-colors",
                             "tagId" in state && state.tagId === tag.id
                               ? "bg-[var(--neutral-100,#e8f0ef)] dark:bg-[var(--neutral-600-dark,#002e2d)]"
                               : "hover:bg-[var(--neutral-100,#e8f0ef)] dark:hover:bg-[var(--neutral-600-dark,#002e2d)]",
@@ -290,7 +287,7 @@ export function TagManagerSheet({ tags = [], trigger }: TagManagerSheetProps) {
                                     value: e.target.value,
                                   })
                                 }
-                                className="flex-1 min-w-0 bg-transparent font-semibold text-[14px] sm:text-[16px] leading-[1.4] outline-none text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
+                                className="flex-1 bg-transparent font-semibold text-[16px] leading-[1.4] outline-none text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)]"
                                 autoFocus
                                 disabled={isProcessing}
                                 onKeyDown={(e) => {
@@ -327,15 +324,12 @@ export function TagManagerSheet({ tags = [], trigger }: TagManagerSheetProps) {
                             </>
                           ) : (
                             <>
-                              <p className="flex-1 min-w-0 font-semibold text-[14px] sm:text-[16px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] truncate">
+                              <p className="flex-1 font-semibold text-[16px] leading-[1.4] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] truncate">
                                 {tag.title}
                               </p>
-                              <span className="hidden sm:inline text-[12px] font-medium leading-[1.4] text-[var(--neutral-500,#899492)] dark:text-[var(--neutral-100-dark,#b1b9b9)] whitespace-nowrap">
+                              <span className="text-[12px] font-medium leading-[1.4] text-[var(--neutral-500,#899492)] dark:text-[var(--neutral-100-dark,#b1b9b9)] whitespace-nowrap">
                                 {tag.totalBookmarks} bookmark
                                 {tag.totalBookmarks !== 1 ? "s" : ""}
-                              </span>
-                              <span className="sm:hidden text-[11px] font-medium leading-[1.4] text-[var(--neutral-500,#899492)] dark:text-[var(--neutral-100-dark,#b1b9b9)] whitespace-nowrap">
-                                {tag.totalBookmarks}
                               </span>
                               <button
                                 onClick={() =>
@@ -379,7 +373,7 @@ export function TagManagerSheet({ tags = [], trigger }: TagManagerSheetProps) {
             </div>
           </div>
 
-          <div className="px-[var(--spacing-200,16px)] sm:px-[var(--spacing-300,24px)] py-[var(--spacing-200,16px)] border-t border-[var(--neutral-300,#dde9e7)] dark:border-[var(--neutral-500-dark,#004241)]">
+          <div className="px-[var(--spacing-300,24px)] py-[var(--spacing-200,16px)] border-t border-[var(--neutral-300,#dde9e7)] dark:border-[var(--neutral-500-dark,#004241)]">
             <p className="text-[12px] font-medium leading-[1.4] text-[var(--neutral-500,#899492)] dark:text-[var(--neutral-100-dark,#b1b9b9)]">
               Tags with bookmarks cannot be deleted. Remove them from bookmarks
               first.

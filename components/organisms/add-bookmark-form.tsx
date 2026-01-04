@@ -12,6 +12,7 @@ import {
   ScrapedMetadata,
 } from "@/actions/bookmarks";
 import { toast } from "sonner";
+import TagInput from "./tag-input";
 
 interface AddBookmarkFormProps {
   dialogOpen: boolean;
@@ -63,7 +64,7 @@ const initialFormState: BookmarkFormState = {
 
 function bookmarkFormReducer(
   state: BookmarkFormState,
-  action: BookmarkFormAction
+  action: BookmarkFormAction,
 ): BookmarkFormState {
   switch (action.type) {
     case "URL_BLUR":
@@ -83,7 +84,9 @@ function bookmarkFormReducer(
         fields: {
           ...state.fields,
           // Only auto-fill if user has NOT manually edited
-          title: state.userEdited.title ? state.fields.title : action.data.title,
+          title: state.userEdited.title
+            ? state.fields.title
+            : action.data.title,
           description: state.userEdited.description
             ? state.fields.description
             : action.data.description,
@@ -138,12 +141,15 @@ const FormContent = ({
   setDialogOpen: (open: boolean) => void;
 }) => {
   // useReducer for metadata and form field state
-  const [formState, dispatch] = useReducer(bookmarkFormReducer, initialFormState);
+  const [formState, dispatch] = useReducer(
+    bookmarkFormReducer,
+    initialFormState,
+  );
 
   // useActionState for form submission and validation
   const [actionState, formAction, isPending] = useActionState(
     createBookmarkAction,
-    initialActionState
+    initialActionState,
   );
 
   // Effect: success toast and reset
@@ -175,7 +181,11 @@ const FormContent = ({
         dispatch({ type: "METADATA_FETCH_FAILED" });
       }
     });
-  }, [formState.fields.url, formState.lastFetchedUrl, formState.metadata.status]);
+  }, [
+    formState.fields.url,
+    formState.lastFetchedUrl,
+    formState.metadata.status,
+  ]);
 
   // Handler for field changes
   const handleFieldChange =
@@ -238,14 +248,11 @@ const FormContent = ({
       />
 
       {/* Tags - controlled */}
-      <Input
-        label="Tags"
-        name="tags"
+      <TagInput
         value={formState.fields.tags}
         onChange={handleFieldChange("tags")}
         error={actionState.status === "error" && !!actionState.errors?.tags}
         hintText={actionState.errors?.tags}
-        placeholder="e.g. Design, Learning, Tools"
       />
 
       {/* Buttons */}

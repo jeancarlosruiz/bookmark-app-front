@@ -107,7 +107,7 @@ export const bookmarkService = {
     bookmarkId: string,
     data: UpdateBookmarkInput,
   ): Promise<Bookmark> {
-    return httpClient.put<Bookmark>(`/bookmark/${bookmarkId}`, data);
+    return httpClient.put<Bookmark>(`/bookmark/update/${bookmarkId}`, data);
   },
 
   /**

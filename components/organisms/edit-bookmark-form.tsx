@@ -4,12 +4,13 @@ import DialogContainer from "../molecules/dialog-container";
 import { Input } from "../atoms/input";
 import { Button } from "../atoms/button";
 import { Textarea } from "../atoms/textarea";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import {
   UPDATE_BOOKMARK_STATE,
   updateBookmarkAction,
 } from "@/actions/bookmarks";
 import { BookmarkType } from "@/lib/zod/bookmark";
+import { toast } from "sonner";
 
 interface EditBookmarkFormProps {
   dialogOpen: boolean;
@@ -39,6 +40,13 @@ const EditBookmarkForm = ({
     initialState,
   );
 
+  useEffect(() => {
+    if (state.status === "success") {
+      toast.success("Bookmark updated successfully.");
+      setDialogOpen(false);
+    }
+  }, [state]);
+
   return (
     <DialogContainer
       open={dialogOpen}
@@ -48,6 +56,10 @@ const EditBookmarkForm = ({
       description="Update your saved link details — change the title, description, URL, or tags anytime."
     >
       <form action={formAction} className="flex flex-col gap-[20px] w-full">
+        {bookmark.favicon && (
+          <input type="hidden" name="favicon" value={bookmark.favicon} />
+        )}
+        <input type="hidden" name="bookmarkId" value={bookmark.id} />
         {/* Title */}
         <Input label="Title" name="title" defaultValue={state.fields?.title} />
 

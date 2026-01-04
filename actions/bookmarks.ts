@@ -322,7 +322,7 @@ export const createBookmarkAction = async (
 };
 
 export interface UPDATE_BOOKMARK_STATE {
-  status: "idle" | "pending" | "success" | "error";
+  status: "idle" | "success" | "error";
   errors?: Record<string, string> | null;
   fields?: {
     title: string;
@@ -336,14 +336,60 @@ export const updateBookmarkAction = async (
   _: UPDATE_BOOKMARK_STATE,
   formData: FormData,
 ): Promise<UPDATE_BOOKMARK_STATE> => {
+  const userData = await authService.getCurrentUser();
+
+  if (!userData?.user?.id) {
+    throw new Error("User not authenticated");
+  }
+
+  const userId = userData.user.id;
+
+  const rawData = {
+    title: formData.get("title") as string,
+    description: formData.get("description") as string,
+    url: formData.get("url") as string,
+    tags: formData.get("tags") as string,
+    favicon: formData.get("favicon") as string,
+  };
+
+  const bookmarkId = formData.get("bookmarkId") as string;
+
   try {
+    const result = await CREATE_BOOKMARK_SCHEMA.safeParseAsync(rawData);
+
+    if (!result.success) {
+      const flattenedErrors = zodFlattenError(result.error);
+
+      return {
+        status: "error",
+        errors: {
+          title: flattenedErrors.fieldErrors.title?.[0] || "",
+          description: flattenedErrors.fieldErrors.description?.[0] || "",
+          url: flattenedErrors.fieldErrors.url?.[0] || "",
+          tags: flattenedErrors.fieldErrors.tags?.[0] || "",
+        },
+        fields: rawData,
+      };
+    }
+
+    const data = {
+      ...result.data,
+      user_id: userId,
+    };
+
+    await bookmarkService.updateBookmark(bookmarkId, data);
+
+    revalidatePath("/");
+    revalidatePath("/archived");
+
     return {
       status: "success",
       errors: null,
     };
   } catch (error) {
+    console.error("ERROR in updateBookmarkAction:", error);
     return {
-      status: "success",
+      status: "error",
       errors: null,
     };
   }
