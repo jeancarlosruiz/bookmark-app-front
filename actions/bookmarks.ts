@@ -252,6 +252,7 @@ export const deleteBookmark = async (id: number) => {
 export interface CREATE_BOOKMARK_STATE {
   status: "idle" | "success" | "error";
   errors?: Record<string, string> | null;
+  serverError?: string; // Error message from the backend
   fields?: {
     title: string;
     description: string;
@@ -314,9 +315,23 @@ export const createBookmarkAction = async (
       errors: null,
     };
   } catch (error) {
+    console.error("ERROR in createBookmarkAction:", error);
+
+    if (error instanceof HTTPError) {
+      return {
+        status: "error",
+        errors: null,
+        serverError: error.message,
+        fields: rawData,
+      };
+    }
+
     return {
       status: "error",
       errors: null,
+      serverError:
+        error instanceof Error ? error.message : "An unexpected error occurred",
+      fields: rawData,
     };
   }
 };
@@ -324,6 +339,7 @@ export const createBookmarkAction = async (
 export interface UPDATE_BOOKMARK_STATE {
   status: "idle" | "success" | "error";
   errors?: Record<string, string> | null;
+  serverError?: string; // Error message from the backend
   fields?: {
     title: string;
     description: string;
@@ -387,10 +403,21 @@ export const updateBookmarkAction = async (
       errors: null,
     };
   } catch (error) {
-    console.error("ERROR in updateBookmarkAction:", error);
+    if (error instanceof HTTPError) {
+      return {
+        status: "error",
+        errors: null,
+        serverError: error.message,
+        fields: rawData,
+      };
+    }
+
     return {
       status: "error",
       errors: null,
+      serverError:
+        error instanceof Error ? error.message : "An unexpected error occurred",
+      fields: rawData,
     };
   }
 };
@@ -454,11 +481,12 @@ export interface ScrapedMetadata {
 export interface MetadataResponse {
   success: boolean;
   data?: ScrapedMetadata;
+  error?: string;
 }
 
 export const getMetadata = async (url: string): Promise<MetadataResponse> => {
   if (!url || !url.startsWith("http")) {
-    return { success: false };
+    return { success: false, error: "Invalid URL format" };
   }
 
   try {
@@ -473,6 +501,13 @@ export const getMetadata = async (url: string): Promise<MetadataResponse> => {
       },
     };
   } catch (error) {
-    return { success: false };
+    if (error instanceof HTTPError) {
+      return { success: false, error: error.message };
+    }
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Failed to fetch metadata",
+    };
   }
 };

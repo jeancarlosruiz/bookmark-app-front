@@ -62,6 +62,7 @@ export const getTagsAction = async () => {
 export interface CREATE_TAG_STATE {
   status: "idle" | "success" | "error";
   errors?: Record<string, string> | null;
+  serverError?: string;
   fields?: {
     title: string;
   };
@@ -102,30 +103,27 @@ export const createTagAction = async (
 
     revalidatePath("/");
 
-    console.log("No paso na");
-
     return {
       status: "success",
     };
   } catch (error) {
-    if (error instanceof HTTPError) {
-      console.error("HTTP Error creating tag:", {
-        status: error.status,
-        statusText: error.statusText,
-        url: error.url,
-        message: error.message,
-      });
+    console.error("ERROR in createTagAction:", error);
 
+    if (error instanceof HTTPError) {
       return {
         status: "error",
+        errors: null,
+        serverError: error.message,
+        fields: rawData,
       };
     }
 
     return {
       status: "error",
-      errors: {
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
+      errors: null,
+      serverError:
+        error instanceof Error ? error.message : "An unexpected error occurred",
+      fields: rawData,
     };
   }
 };
@@ -215,7 +213,6 @@ export const deleteTagAction = async (tagId: number) => {
       };
     }
 
-    console.error("Error deleting tag:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

@@ -4,7 +4,7 @@ import DialogContainer from "../molecules/dialog-container";
 import { Input } from "../atoms/input";
 import { Button } from "../atoms/button";
 import { Textarea } from "../atoms/textarea";
-import { useActionState, useEffect, useReducer } from "react";
+import { useActionState, useEffect, useReducer, useRef } from "react";
 import {
   CREATE_BOOKMARK_STATE,
   createBookmarkAction,
@@ -27,7 +27,7 @@ type MetadataStatus =
   | { status: "idle" }
   | { status: "loading" }
   | { status: "success"; data: ScrapedMetadata }
-  | { status: "error" };
+  | { status: "error"; message: string };
 
 interface FormFields {
   title: string;
@@ -48,7 +48,7 @@ type BookmarkFormAction =
   | { type: "URL_BLUR"; url: string }
   | { type: "METADATA_FETCH_STARTED" }
   | { type: "METADATA_FETCH_SUCCEEDED"; data: ScrapedMetadata }
-  | { type: "METADATA_FETCH_FAILED" }
+  | { type: "METADATA_FETCH_FAILED"; message: string }
   | { type: "FIELD_CHANGED"; field: keyof FormFields; value: string }
   | { type: "FORM_RESET" };
 
@@ -100,7 +100,10 @@ function bookmarkFormReducer(
       };
 
     case "METADATA_FETCH_FAILED":
-      return { ...state, metadata: { status: "error" } };
+      return {
+        ...state,
+        metadata: { status: "error", message: action.message },
+      };
 
     case "FIELD_CHANGED": {
       const newState = {
@@ -163,14 +166,25 @@ const FormContent = ({
     initialActionState,
   );
 
-  // Effect: success toast and reset
+  const hasHandledStatusRef = useRef(false);
+
+  // Effect: handle success/error toasts
   useEffect(() => {
-    if (actionState.status === "success") {
+    // Reset the ref when status changes to a new state
+    if (actionState.status !== "idle") {
+      hasHandledStatusRef.current = false;
+    }
+
+    if (actionState.status === "success" && !hasHandledStatusRef.current) {
+      hasHandledStatusRef.current = true;
       toast.success("Bookmark added successfully.");
       dispatch({ type: "FORM_RESET" });
       setDialogOpen(false);
+    } else if (actionState.status === "error" && actionState.serverError && !hasHandledStatusRef.current) {
+      hasHandledStatusRef.current = true;
+      toast.error(actionState.serverError);
     }
-  }, [actionState.status, setDialogOpen]);
+  }, [actionState.status, actionState.serverError]);
 
   // Effect: fetch metadata only when URL blur occurs (not on every keystroke)
   useEffect(() => {
@@ -189,7 +203,10 @@ const FormContent = ({
       if (result.success && result.data) {
         dispatch({ type: "METADATA_FETCH_SUCCEEDED", data: result.data });
       } else {
-        dispatch({ type: "METADATA_FETCH_FAILED" });
+        dispatch({
+          type: "METADATA_FETCH_FAILED",
+          message: result.error || "Failed to fetch metadata",
+        });
       }
     });
   }, [
@@ -254,8 +271,16 @@ const FormContent = ({
         value={formState.fields.url}
         onChange={handleFieldChange("url")}
         onBlur={handleUrlBlur}
-        error={actionState.status === "error" && !!actionState.errors?.url}
-        hintText={actionState.errors?.url}
+        error={
+          (actionState.status === "error" && !!actionState.errors?.url) ||
+          formState.metadata.status === "error"
+        }
+        hintText={
+          (actionState.errors?.url && actionState.errors?.url) ||
+          (formState.metadata.status === "error"
+            ? formState.metadata.message
+            : undefined)
+        }
       />
 
       {/* Tags - controlled */}

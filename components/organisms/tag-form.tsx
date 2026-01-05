@@ -3,8 +3,9 @@
 import { Loader2, Plus } from "lucide-react";
 import { Button } from "../atoms/button";
 import { Input } from "../atoms/input";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { CREATE_TAG_STATE, createTagAction } from "@/actions/tags";
+import { toast } from "sonner";
 
 const initialState: CREATE_TAG_STATE = {
   status: "idle",
@@ -19,6 +20,14 @@ export default function TagForm() {
     createTagAction,
     initialState,
   );
+
+  useEffect(() => {
+    if (state.status === "success") {
+      toast.success("Tag created successfully.");
+    } else if (state.status === "error" && state.serverError) {
+      toast.error(state.serverError);
+    }
+  }, [state.status, state.serverError]);
 
   const isError = state.status === "error" && state.errors?.title !== "";
 

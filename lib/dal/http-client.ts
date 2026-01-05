@@ -237,10 +237,27 @@ class HTTPClient {
    */
   private async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
-      const errorText = await response.text().catch(() => "Unknown error");
+      let errorMessage = "Unknown error";
+
+      try {
+        const contentType = response.headers.get("content-type");
+        if (contentType?.includes("application/json")) {
+          const errorJson = await response.json();
+          // Support common error response formats from Go backend
+          errorMessage =
+            errorJson.error ||
+            errorJson.message ||
+            errorJson.detail ||
+            JSON.stringify(errorJson);
+        } else {
+          errorMessage = await response.text();
+        }
+      } catch {
+        errorMessage = response.statusText || "Unknown error";
+      }
 
       throw new HTTPError(
-        `HTTP ${response.status}: ${errorText}`,
+        errorMessage,
         response.status,
         response.statusText,
         response.url,
