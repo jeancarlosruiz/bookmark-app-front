@@ -8,6 +8,7 @@ import {
   sendVerificationEmail,
   sendPasswordResetEmail,
 } from "@/lib/email/resend";
+import { headers } from "next/headers";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -65,7 +66,48 @@ export const auth = betterAuth({
   },
 
   plugins: [
-    anonymous(),
+    anonymous({
+      // Callback executed when anonymous user links account (signs in/up)
+      onLinkAccount: async ({ anonymousUser, newUser }) => {
+        const { token } = await auth.api.getToken({
+          headers: await headers(),
+        });
+        console.log("User token", token);
+
+        // TODO: Call your Go backend to migrate bookmarks and tags
+        try {
+          const response = await fetch(
+            `${process.env.API_URL}/internal/migrate`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                // TODO: Add your internal API key for server-to-server auth
+                "X-Internal-API-Key": process.env.INTERNAL_API_KEY!,
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                anonymous_user_id: anonymousUser.user.id,
+                new_user_id: newUser.user.id,
+              }),
+            },
+          );
+
+          if (!response.ok) {
+            const error = await response.text();
+            console.error("❌ Migration failed:", error);
+            // Don't throw - allow account linking to succeed
+            // User can retry migration later if needed
+          } else {
+            const result = await response.json();
+            console.log("✅ Migration successful:", result);
+          }
+        } catch (error) {
+          console.error("❌ Migration error:", error);
+          // Don't throw - allow account linking to succeed
+        }
+      },
+    }),
     jwt({
       jwks: {
         keyPairConfig: {
