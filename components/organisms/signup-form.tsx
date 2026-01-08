@@ -30,7 +30,7 @@ const SignupForm = () => {
 
   React.useEffect(() => {
     if (state.status === "success") {
-      router.push("/");
+      router.push("/signin");
     }
   });
 
