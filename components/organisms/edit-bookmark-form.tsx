@@ -187,7 +187,7 @@ const FormContent = ({
       hasHandledStatusRef.current = true;
       toast.error(actionState.serverError);
     }
-  }, [actionState.status, actionState.serverError, setDialogOpen]);
+  }, [actionState.status, actionState.serverError]);
 
   // Effect: fetch metadata only when URL blur occurs (not on every keystroke)
   useEffect(() => {
