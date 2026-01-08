@@ -3,6 +3,7 @@ import { Manrope } from "next/font/google";
 import { Toaster } from "@/components/atoms/sonner";
 import { ThemeProvider } from "@/components/atoms/theme-provider";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { MigrationToast } from "@/components/organisms/migration-toast";
 import "./globals.css";
 
 const manropeSans = Manrope({
@@ -38,6 +39,7 @@ export default function RootLayout({
                 top: "100px",
               }}
             />
+            <MigrationToast />
           </ThemeProvider>
         </NuqsAdapter>
       </body>
