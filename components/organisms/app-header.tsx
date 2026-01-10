@@ -9,12 +9,20 @@ import { ProfileDropdown } from "@/components/organisms/profile-dropdown";
 import AddBookmarkForm from "./add-bookmark-form";
 import MenuButton from "../molecules/menu-button";
 
+export interface UserData {
+  name: string | null;
+  email: string | null;
+  image: string | null;
+  isAnonymous: boolean;
+}
+
 export interface AppHeaderProps {
   className?: string;
+  user?: UserData | null;
 }
 
 const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
-  ({ className }, ref) => {
+  ({ className, user }, ref) => {
     const [openDialog, setOpenDialog] = React.useState(false);
 
     return (
@@ -50,7 +58,7 @@ const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
               <span className="hidden lg:inline lg:ml-2">Add Bookmark</span>
             </Button>
 
-            <ProfileDropdown />
+            <ProfileDropdown initialUser={user} />
           </div>
         </header>
 

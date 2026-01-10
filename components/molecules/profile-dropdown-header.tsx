@@ -6,13 +6,14 @@ export interface ProfileDropdownHeaderProps {
   name: string;
   email: string;
   avatar?: string;
+  isAnonymous?: boolean;
   className?: string;
 }
 
 const ProfileDropdownHeader = React.forwardRef<
   HTMLDivElement,
   ProfileDropdownHeaderProps
->(({ name, email, avatar, className }, ref) => {
+>(({ name, email, avatar, isAnonymous = false, className }, ref) => {
   return (
     <div
       ref={ref}
@@ -29,11 +30,18 @@ const ProfileDropdownHeader = React.forwardRef<
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 flex flex-col items-start min-w-0">
-          <p className="font-semibold text-[14px] leading-[1.4] text-[var(--neutral-900,#051513)] dark:text-white w-full truncate">
-            {name}
-          </p>
+          <div className="flex items-center gap-[var(--spacing-100,8px)] w-full">
+            <p className="font-semibold text-[14px] leading-[1.4] text-[var(--neutral-900,#051513)] dark:text-white truncate">
+              {name}
+            </p>
+            {isAnonymous && (
+              <span className="inline-flex items-center px-[6px] py-[2px] rounded-full bg-[var(--neutral-200,#c9d9d7)] dark:bg-[var(--neutral-700-dark,#003838)] text-[10px] font-semibold text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-200-dark,#71817f)] uppercase tracking-wider">
+                Anonymous
+              </span>
+            )}
+          </div>
           <p className="font-medium text-[14px] leading-[1.5] tracking-[0.14px] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] w-full truncate">
-            {email}
+            {isAnonymous ? "Continue as guest" : email}
           </p>
         </div>
       </div>

@@ -8,7 +8,7 @@ import {
   sendVerificationEmail,
   sendPasswordResetEmail,
 } from "@/lib/email/resend";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -68,13 +68,11 @@ export const auth = betterAuth({
   plugins: [
     anonymous({
       // Callback executed when anonymous user links account (signs in/up)
-      onLinkAccount: async ({ anonymousUser, newUser }) => {
+      onLinkAccount: async ({ anonymousUser, newUser, ctx }) => {
         const { token } = await auth.api.getToken({
           headers: await headers(),
         });
-        console.log("User token", token);
 
-        // TODO: Call your Go backend to migrate bookmarks and tags
         try {
           const response = await fetch(
             `${process.env.API_URL}/internal/migrate`,
@@ -82,7 +80,6 @@ export const auth = betterAuth({
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                // TODO: Add your internal API key for server-to-server auth
                 "X-Internal-API-Key": process.env.INTERNAL_API_KEY!,
                 Authorization: `Bearer ${token}`,
               },
@@ -101,6 +98,14 @@ export const auth = betterAuth({
           } else {
             const result = await response.json();
             console.log("✅ Migration successful:", result);
+
+            const cookieStore = await cookies();
+            cookieStore.set("migration_data", JSON.stringify(result.data), {
+              httpOnly: false,
+              maxAge: 60, // Next.js usa segundos
+              path: "/",
+              sameSite: "lax",
+            });
           }
         } catch (error) {
           console.error("❌ Migration error:", error);
