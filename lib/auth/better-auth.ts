@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { anonymous, jwt } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { APIError } from "better-auth/api";
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 import {
@@ -91,25 +92,46 @@ export const auth = betterAuth({
           );
 
           if (!response.ok) {
-            const error = await response.text();
-            console.error("❌ Migration failed:", error);
-            // Don't throw - allow account linking to succeed
-            // User can retry migration later if needed
-          } else {
-            const result = await response.json();
-            console.log("✅ Migration successful:", result);
+            const errorText = await response.text();
+            console.error("❌ Migration failed:", {
+              status: response.status,
+              statusText: response.statusText,
+              error: errorText,
+            });
 
-            const cookieStore = await cookies();
-            cookieStore.set("migration_data", JSON.stringify(result.data), {
-              httpOnly: false,
-              maxAge: 60, // Next.js usa segundos
-              path: "/",
-              sameSite: "lax",
+            // Throw APIError to prevent account linking
+            // This keeps the user as anonymous and allows them to retry
+            throw new APIError("INTERNAL_SERVER_ERROR", {
+              message:
+                "Failed to migrate your data. Please try again or contact support.",
             });
           }
+
+          // Migration successful
+          const result = await response.json();
+          console.log("✅ Migration successful:", result);
+
+          // Store migration result in cookie for client-side toast notification
+          const cookieStore = await cookies();
+          cookieStore.set("migration_success", JSON.stringify(result.data), {
+            httpOnly: false,
+            maxAge: 60, // 60 seconds - short-lived for one-time notification
+            path: "/",
+            sameSite: "lax",
+          });
         } catch (error) {
           console.error("❌ Migration error:", error);
-          // Don't throw - allow account linking to succeed
+
+          // If it's already an APIError, re-throw it
+          if (error instanceof APIError) {
+            throw error;
+          }
+
+          // Network or unexpected errors
+          throw new APIError("INTERNAL_SERVER_ERROR", {
+            message:
+              "An unexpected error occurred during sign in. Please try again.",
+          });
         }
       },
     }),

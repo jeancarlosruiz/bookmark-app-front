@@ -10,6 +10,12 @@ import { useActionState } from "react";
 import { signup, SIGNUP_FORM_STATE } from "@/actions/auth";
 import { useRouter } from "next/navigation";
 import { signInGoogleClient } from "@/lib/auth/better-auth-client";
+import { toast } from "sonner";
+import { useMigrationNotification } from "@/lib/hooks/use-migration-notification";
+import {
+  getSafeErrorMessage,
+  logAuthError,
+} from "@/lib/utils/auth-error-handler";
 
 const initialState: SIGNUP_FORM_STATE = {
   status: "idle",
@@ -28,11 +34,14 @@ const SignupForm = () => {
   const generalError = state.errors?.general;
   const router = useRouter();
 
+  // Check for migration notifications (success)
+  useMigrationNotification();
+
   React.useEffect(() => {
     if (state.status === "success") {
       router.push("/signin");
     }
-  });
+  }, [state, router]);
 
   return (
     <div className="bg-[var(--neutral-0,#ffffff)] dark:bg-[var(--neutral-800-dark,#001f1f)] flex flex-col gap-[var(--spacing-400,32px)] px-[var(--spacing-400,32px)] py-[var(--spacing-500,40px)] rounded-[var(--radius-12,12px)] shadow-[0px_2px_4px_0px_rgba(21,21,21,0.06)] w-full max-w-[448px]">
@@ -100,10 +109,20 @@ const SignupForm = () => {
             setIsGoogleLoading(true);
             try {
               await signInGoogleClient();
+              // If successful, redirect to home - migration notification will show there
               router.push("/");
-            } catch (error) {
-              console.error("Google sign-in error:", error);
+            } catch (error: unknown) {
               setIsGoogleLoading(false);
+
+              // Get sanitized error message safe for users
+              const safeErrorMessage = getSafeErrorMessage(
+                error,
+                "google_signin",
+              );
+              toast.error(safeErrorMessage);
+
+              // Log detailed error for debugging (dev only)
+              logAuthError(error, "Signup - Google Sign-in");
             }
           }}
           disabled={isGoogleLoading || isPending}

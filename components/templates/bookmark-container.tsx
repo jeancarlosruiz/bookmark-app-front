@@ -86,8 +86,8 @@ export default function BookmarkContainer({
         />
       )}
 
-      {/* <BookmarkPagination pagination={result?.pagination} /> */}
-      <LoadMoreButton pagination={result.pagination!} />
+      {/* Load more button - only render if pagination exists */}
+      {result.pagination && <LoadMoreButton pagination={result.pagination} />}
     </section>
   );
 }

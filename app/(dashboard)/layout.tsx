@@ -2,6 +2,7 @@ import * as React from "react";
 import { SidebarProvider } from "@/components/atoms/sidebar";
 import { AppSidebar } from "@/components/organisms/app-sidebar";
 import { AppHeader } from "@/components/organisms/app-header";
+import { MigrationNotification } from "@/components/organisms/migration-notification";
 import { authService } from "@/lib/dal/auth";
 
 // Force dynamic rendering because AppSidebar uses authentication (headers/cookies)
@@ -26,6 +27,7 @@ export default async function DashboardLayout({
 
   return (
     <SidebarProvider>
+      <MigrationNotification />
       <AppSidebar />
       <main className="flex flex-col w-full bg-[var(--neutral-200)] dark:bg-[var(--neutral-900-dark)] min-h-screen">
         <AppHeader user={user} />

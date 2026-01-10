@@ -8,7 +8,7 @@ import { authService } from "./auth";
 function getBaseURL(): string {
   // Server-side execution (Node.js)
   if (typeof window === "undefined") {
-    const url = `${process.env.API_URL}/api`;
+    const url = `${process.env.API_URL}`;
     if (!url) {
       throw new Error(
         "API_URL environment variable is not defined. Check your .env.local file.",

@@ -70,6 +70,9 @@ const searchParamsParsed = {
 
 const searchParams = createSerializer(searchParamsParsed);
 
+// Serializer para URL metadata preview (nuqs maneja encoding automaticamente)
+const urlSerializer = createSerializer({ url: parseAsString });
+
 /**
  * Bookmark Data Access Layer
  */
@@ -82,22 +85,15 @@ export const bookmarkService = {
     params: BookmarkQueryParams,
   ): Promise<Bookmark> {
     return httpClient.get<Bookmark>(
-      `/bookmark/user/${userId}${searchParams(params)}`,
+      `api/bookmark/user/${userId}${searchParams(params)}`,
     );
-  },
-
-  /**
-   * Get a single bookmark by ID
-   */
-  async getBookmarkById(bookmarkId: string): Promise<Bookmark> {
-    return httpClient.get<Bookmark>(`/bookmark/${bookmarkId}`);
   },
 
   /**
    * Create a new bookmark
    */
   async createBookmark(data: CreateBookmarkInput): Promise<Bookmark> {
-    return httpClient.post<Bookmark>("/bookmark", data);
+    return httpClient.post<Bookmark>("api/bookmark", data);
   },
 
   /**
@@ -107,14 +103,14 @@ export const bookmarkService = {
     bookmarkId: string,
     data: UpdateBookmarkInput,
   ): Promise<Bookmark> {
-    return httpClient.put<Bookmark>(`/bookmark/update/${bookmarkId}`, data);
+    return httpClient.put<Bookmark>(`api/bookmark/update/${bookmarkId}`, data);
   },
 
   /**
    * Delete a bookmark
    */
   async deleteBookmark(bookmarkId: number): Promise<void> {
-    return httpClient.delete<void>(`/bookmark/${bookmarkId}`);
+    return httpClient.delete<void>(`api/bookmark/${bookmarkId}`);
   },
 
   /**
@@ -122,7 +118,7 @@ export const bookmarkService = {
    */
   async togglePin(bookmarkId: number): Promise<UpdateBookmarkResponse> {
     return httpClient.put<UpdateBookmarkResponse>(
-      `/bookmark/${bookmarkId}/toggle-pinned`,
+      `api/bookmark/${bookmarkId}/toggle-pinned`,
     );
   },
 
@@ -131,7 +127,7 @@ export const bookmarkService = {
    */
   async toggleArchive(bookmarkId: number): Promise<UpdateBookmarkResponse> {
     return httpClient.put<UpdateBookmarkResponse>(
-      `/bookmark/${bookmarkId}/toggle-is-archived`,
+      `api/bookmark/${bookmarkId}/toggle-is-archived`,
     );
   },
 
@@ -140,7 +136,7 @@ export const bookmarkService = {
    */
   async recordVisit(bookmarkId: number): Promise<UpdateBookmarkResponse> {
     return httpClient.put<UpdateBookmarkResponse>(
-      `/bookmark/view-count/${bookmarkId}`,
+      `api/bookmark/view-count/${bookmarkId}`,
     );
   },
 
@@ -148,26 +144,16 @@ export const bookmarkService = {
    * Search bookmarks by title
    */
   async searchBookmarks(params: BookmarkQueryParams): Promise<Bookmark> {
-    return httpClient.get<Bookmark>(`/bookmark/title${searchParams(params)}`);
+    return httpClient.get<Bookmark>(
+      `api/bookmark/title${searchParams(params)}`,
+    );
   },
 
   /**
    * Filter bookmarks by tags
    */
   async filterByTags(params: BookmarkQueryParams): Promise<Bookmark> {
-    return httpClient.get<Bookmark>(`/bookmark/tags${searchParams(params)}`);
-  },
-
-  /**
-   * Get pinned bookmarks
-   */
-  async getPinnedBookmarks(
-    userId: string,
-    params: BookmarkQueryParams,
-  ): Promise<Bookmark> {
-    return httpClient.get<Bookmark>(
-      `/bookmark/user/${userId}${searchParams(params)}`,
-    );
+    return httpClient.get<Bookmark>(`api/bookmark/tags${searchParams(params)}`);
   },
 
   /**
@@ -177,7 +163,7 @@ export const bookmarkService = {
     userId: string,
     params: BookmarkQueryParams,
   ): Promise<Bookmark> {
-    const url = `/bookmark/user/${userId}/archived${searchParams(params)}`;
+    const url = `api/bookmark/user/${userId}/archived${searchParams(params)}`;
 
     return httpClient.get<Bookmark>(url);
   },
@@ -187,7 +173,7 @@ export const bookmarkService = {
    */
   async getMetadata(url: string): Promise<MetadataPreviewResponse> {
     return httpClient.get<MetadataPreviewResponse>(
-      `/bookmark/preview?url=${url}`,
+      `api/bookmark/preview${urlSerializer({ url })}`,
     );
   },
 };
