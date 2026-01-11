@@ -2,7 +2,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { SortByDropdown } from "@/components/organisms/sort-by-dropdown";
-import { useSearch } from "@/hooks/use-search";
+import { useSearch } from "@/lib/hooks/use-search";
 
 export interface BookmarkListHeaderProps {
   title?: string;

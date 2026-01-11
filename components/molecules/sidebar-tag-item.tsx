@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/atoms/scroll-area";
 import { TagManagerSheet } from "@/components/organisms/tag-manager-sheet";
 import { useQueryState, parseAsArrayOf, parseAsString } from "nuqs";
 import { Loader2 } from "lucide-react";
-import { useSearch } from "@/hooks/use-search";
+import { useSearch } from "@/lib/hooks/use-search";
 
 export interface SidebarTagItemProps {
   tags: TagsType[];
