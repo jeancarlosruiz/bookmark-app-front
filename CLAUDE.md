@@ -4,648 +4,246 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **bookmark manager app** challenge from Frontend Mentor, built as a full-stack application with Next.js 16, React 19, and Better Auth for authentication. The app allows users to manage bookmarks with features like search, filtering by tags, archiving, pinning, and theme switching.
+This is a full-stack bookmark management application built as a premium Frontend Mentor challenge. It's a Next.js 16+ application with TypeScript, using Better Auth for authentication and a Go backend API for bookmark management.
 
-## Tech Stack
+**Key Features**: User authentication (email/password + Google OAuth), anonymous user mode with data migration on signup, bookmark CRUD operations, tagging system, search/filter, pin/archive functionality, and light/dark themes.
 
-- **Framework**: Next.js 16.1.1 (App Router with Turbopack)
-- **React**: 19.2.3 (Server Components enabled)
-- **TypeScript**: 5.x
-- **Styling**: Tailwind CSS 4.1.14 with PostCSS
-- **UI Components**: Radix UI primitives + shadcn/ui (new-york style)
-- **Authentication**: Better Auth 1.4.7 with Google OAuth, email/password, and anonymous mode
-- **Database**: PostgreSQL (Neon) with Drizzle ORM 0.45.1
-- **Icons**: Lucide React 0.545.0
-- **Theming**: next-themes 0.4.6 with light/dark mode support
-- **Validation**: Zod 4.1.13
-- **Toast Notifications**: Sonner 2.0.7
-- **Email**: React Email 5.1.0 with Resend 6.6.0
+## Technology Stack
 
-## Development Commands
+- **Frontend**: Next.js 16.1.1 with React 19, App Router, Server Components, Server Actions
+- **Authentication**: Better Auth with JWT plugin, anonymous user support
+- **Database**: PostgreSQL (Neon) with Drizzle ORM
+- **Styling**: Tailwind CSS 4, shadcn/ui components, Radix UI primitives
+- **State Management**: URL state with nuqs, React hooks
+- **Email**: Resend with React Email templates
+- **Testing**: Jest with React Testing Library
+- **Deployment**: Docker-ready, configured for Railway
 
+## Essential Commands
+
+### Development
 ```bash
-# Development server with Turbopack (port 3000)
- pnpm dev
-
-# Production build with Turbopack
-pnpm build
-
-# Start production server
-pnpm start
-
-# Run ESLint
-pnpm lint
-
-# Database commands (Drizzle Kit) - Better Auth tables ONLY
-pnpm db:generate    # Generate migrations from schema changes
-pnpm db:migrate     # Run migrations
-pnpm db:push        # Push schema directly to database (dev only, careful!)
-pnpm db:studio      # Open Drizzle Studio (database GUI on port 4983)
-
-# Email preview (development server on port 3001)
-pnpm email:preview  # Preview email templates in browser
+pnpm dev              # Start dev server with Turbopack
+pnpm build            # Production build with Turbopack
+pnpm start            # Start production server
+pnpm lint             # Run ESLint
 ```
 
-## Common Development Workflows
-
-### Adding a New shadcn/ui Component
-
+### Database (Drizzle)
 ```bash
-# shadcn/ui components are aliased to @/components/atoms
-npx shadcn@latest add [component-name]
-
-# Example: Adding a new dialog
-npx shadcn@latest add dialog
+pnpm db:generate      # Generate migrations from schema changes
+pnpm db:migrate       # Run pending migrations
+pnpm db:push          # Push schema changes directly (dev only)
+pnpm db:studio        # Open Drizzle Studio GUI
 ```
 
-Components will be added to `components/atoms/` directory (configured via `components.json`).
-
-### Working with Email Templates
-
-1. Create email template in `emails/` directory using React Email components
-2. Preview in browser: `npm run email:preview`
-3. Send via Resend in server actions or API routes
-
-### Database Schema Changes (Better Auth tables only)
-
+### Testing
 ```bash
-# 1. Modify lib/db/schema.ts
-# 2. Generate migration
-npm run db:generate
-
-# 3. Review migration in lib/db/migrations/
-# 4. Apply migration
-npm run db:migrate
-
-# OR for quick dev iteration (skips migrations)
-npm run db:push
+pnpm test             # Run all tests with coverage
+pnpm test:watch       # Run tests in watch mode
 ```
 
-**Remember**: Only Better Auth tables live in this database. Bookmark data is in the Go backend.
+### Email Development
+```bash
+pnpm email:preview    # Preview email templates at localhost:3000
+```
 
 ## Architecture
 
-### Next.js 16 Breaking Changes
+### Directory Structure
 
-**Important**: Next.js 16 introduced a breaking change where `middleware.ts` was renamed to `proxy.ts`:
+```
+nextjs-bookmark/
+├── app/                          # Next.js App Router
+│   ├── (auth)/                  # Auth pages (signin, signup, forgot-password, reset-password)
+│   ├── (dashboard)/             # Protected dashboard pages
+│   ├── api/auth/[...all]/       # Better Auth API route
+│   └── examples/                # Component examples/documentation
+├── actions/                     # Server Actions (auth, bookmarks, tags)
+├── components/                  # Atomic Design pattern
+│   ├── atoms/                   # Basic UI elements (Button, Input, etc.)
+│   ├── molecules/               # Composite components
+│   ├── organisms/               # Complex components (Header, Sidebar)
+│   ├── templates/               # Page layouts
+│   └── pages/                   # Page-specific components
+├── lib/
+│   ├── auth/                    # Better Auth configuration
+│   │   ├── better-auth.ts       # Server-side auth config
+│   │   └── better-auth-client.ts # Client-side auth hooks
+│   ├── db/                      # Database layer
+│   │   ├── schema.ts            # Drizzle schema (Better Auth tables)
+│   │   ├── index.ts             # DB instance
+│   │   └── migrations/          # SQL migrations
+│   ├── dal/                     # Data Access Layer (see lib/dal/README.md)
+│   │   ├── http-client.ts       # HTTP client with auto-auth
+│   │   ├── auth.ts              # Auth service
+│   │   ├── bookmark.ts          # Bookmark service
+│   │   └── tags.ts              # Tags service
+│   ├── zod/                     # Zod schemas (bookmark, tag, auth, utils)
+│   ├── hooks/                   # Custom React hooks
+│   ├── utils/                   # Utility functions
+│   ├── config/                  # App configuration
+│   └── email/                   # Email templates and Resend config
+├── __test__/                    # Jest tests
+└── emails/                      # React Email templates
+```
 
-- **Old convention (Next.js 15 and earlier)**: `middleware.ts` with `export function middleware()`
-- **New convention (Next.js 16+)**: `proxy.ts` with `export function proxy()`
-- **Why**: The name "proxy" better reflects the network boundary and routing focus
-- **Runtime**: Default is Node.js (not Edge runtime like in middleware)
-- **Migration**: Use codemod `npx @next/codemod@canary upgrade latest` or manually rename
+### Key Architectural Patterns
 
-This project correctly uses `proxy.ts` as per Next.js 16 conventions.
+#### 1. Component Organization (Atomic Design)
+Components follow Atomic Design principles:
+- **atoms/**: Basic UI primitives (Button, Input, Badge, etc.)
+- **molecules/**: Combinations of atoms (SearchBar, TagFilter, BookmarkCard)
+- **organisms/**: Complex components (Header, Sidebar, BookmarkList)
+- **templates/**: Page layouts
+- **pages/**: Page-specific components
 
-### Authentication System (Better Auth)
+#### 2. Data Access Layer (DAL)
+All backend API calls go through the DAL services in `lib/dal/`. **Never use fetch() directly**. The DAL provides:
+- Automatic JWT token injection via `http-client.ts`
+- Type-safe API calls
+- Centralized error handling
+- Timeout management
 
-**Server-First Architecture** - Better Auth uses a unified server configuration with client bindings:
+**Example:**
+```typescript
+// ❌ Don't do this
+const response = await fetch(`${process.env.API_URL}/bookmark`);
 
-**Server** (`lib/auth/better-auth.ts`):
+// ✅ Do this instead
+import { bookmarkService } from "@/lib/dal/bookmark";
+const bookmarks = await bookmarkService.getUserBookmarks(userId);
+```
 
-- Primary auth instance configured with `betterAuth()`
-- Database adapter: Drizzle ORM with PostgreSQL
-- Plugins: `anonymous()`, `jwt()` (EdDSA keys with JWKS rotation), `nextCookies()`
-- Social providers: Google OAuth
-- Email/password with verification required
-- Session expiry: 7 days with 1-day update age
-- Cookie cache: 5 minutes
+See `lib/dal/README.md` for complete documentation.
 
-**Client** (`lib/auth/better-auth-client.ts`):
+#### 3. Authentication Flow
+- **Better Auth** handles all authentication (sessions, JWT, OAuth)
+- **Server-side**: Use `auth.api.getSession({ headers: await headers() })`
+- **Client-side**: Use `useSession()` hook from `lib/auth/better-auth-client.ts`
+- **Anonymous users**: Supported via Better Auth anonymous plugin
+- **Data migration**: When anonymous user signs up, data is migrated via `onLinkAccount` hook in `lib/auth/better-auth.ts`
 
-- Client bindings created with `createAuthClient()`
-- Must be marked with `"use client"`
-- Provides `useSession()` hook and OAuth methods
-- Methods: `authClient.signIn.social()`, `authClient.signUp.email()`, etc.
+#### 4. Server Actions
+All mutations happen through Server Actions in `actions/`:
+- `actions/auth.ts`: Sign in, sign up, sign out, password reset
+- `actions/bookmarks.ts`: CRUD operations, pin/archive, search
+- `actions/tags.ts`: Tag management
 
-**Data Access Layer** (`lib/dal/auth.ts`):
+#### 5. Backend Communication
+- **Backend URL**: `API_URL` (server-side) and `NEXT_PUBLIC_API_URL` (client-side)
+- **Backend is Go**: The backend is a separate Go service (not in this repo)
+- **Authentication**: All requests include JWT token via DAL
+- **Internal endpoints**: Some endpoints (like `/internal/migrate`) require `X-Internal-API-Key` header
 
-- Centralized auth service for server actions
-- Methods: `signIn()`, `signUp()`, `signOut()`, `getCurrentUser()`, `getUserToken()`, etc.
-- Always uses `headers()` from next/headers for request context
+## Database Schema
 
-**Environment Variables Required:**
+The database uses Drizzle ORM with PostgreSQL. The schema is defined in `lib/db/schema.ts` and includes:
+- Better Auth tables: `user`, `session`, `account`, `verification`, `jwks`
+- **Note**: Bookmark data is managed by the Go backend, not stored in this database
 
-```env
+When modifying the schema:
+1. Update `lib/db/schema.ts`
+2. Run `pnpm db:generate` to create migration
+3. Run `pnpm db:migrate` to apply migration
+4. Never use `pnpm db:push` in production
+
+## Environment Variables
+
+Required variables (see `.env.local`):
+```bash
+# Database
+DATABASE_URL=postgresql://...
+
 # Better Auth
-BETTER_AUTH_SECRET='...'             # Required for session encryption
-BETTER_AUTH_URL='http://localhost:3000'
-NEXT_PUBLIC_BETTER_AUTH_URL='http://localhost:3000'
+BETTER_AUTH_SECRET=          # Random secret key
+BETTER_AUTH_URL=             # Frontend URL (http://localhost:3000)
+NEXT_PUBLIC_BETTER_AUTH_URL= # Same as above for client
 
-# Google OAuth
-GOOGLE_CLIENT_ID='...'
-GOOGLE_CLIENT_SECRET='...'
-
-# Database (Neon PostgreSQL)
-DATABASE_URL='postgresql://...'
+# OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 
 # Email (Resend)
-RESEND_API_KEY='...'
-RESEND_FROM_EMAIL='onboarding@resend.dev'  # Use your domain in production
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
 
 # Backend API
-API_URL='http://localhost:8080/api'              # Server-side calls
-NEXT_PUBLIC_API_URL='http://localhost:8080/api'  # Client-side calls
+API_URL=                     # Server-side backend URL
+NEXT_PUBLIC_API_URL=         # Client-side backend URL
+INTERNAL_API_KEY=            # For internal endpoints
 ```
 
-**Route Protection** (`proxy.ts`):
+## Validation & Type Safety
 
-- **Next.js 16 Convention**: In Next.js 16, `middleware` was renamed to `proxy` (the project is correctly configured)
-- Uses Better Auth's `getSessionCookie()` for lightweight session checking
-- Public routes: `/signin`, `/signup`, `/forgot-password`, `/reset-password`
-- All other routes require session cookie
-- Authenticated users redirected away from auth pages to `/`
-- Unauthenticated users redirected to `/signin`
-- Excludes: `/api/*`, `_next/static`, `_next/image`, `favicon.ico`, static assets, `/examples`
-- Runtime: Node.js (default in Next.js 16 proxy, NOT edge runtime)
-- The function must be exported as `proxy`, not `middleware`
+- All API inputs/outputs are validated with **Zod** schemas in `lib/zod/`
+- Schemas are shared between client and server
+- Server Actions validate inputs before calling backend
+- Type definitions are derived from Zod schemas using `z.infer<typeof schema>`
 
-### Database Schema (Drizzle ORM)
+## Testing
 
-**Schema Location**: `lib/db/schema.ts`
+- Tests live in `__test__/` directory
+- Jest is configured with jsdom environment
+- Use `@/` path alias for imports (configured in `jest.config.ts`)
+- Run tests before committing: `pnpm test`
 
-**Better Auth Tables** (automatically managed):
+### Writing Tests
+```typescript
+// Example test structure
+import { render, screen } from '@testing-library/react';
+import Component from '@/components/atoms/Component';
 
-- `user`: Core user data with `id`, `name`, `email`, `emailVerified`, `isAnonymous`
-- `session`: Session tokens with expiration, IP tracking, user agent
-- `account`: OAuth and email/password credentials with refresh tokens
-- `verification`: Email verification tokens
-- `jwks`: JWT signing keys for rotation
-
-**Drizzle Configuration** (`drizzle.config.ts`):
-
-- Migrations output: `lib/db/migrations/`
-- Dialect: PostgreSQL
-- Indexes on `userId` for performance
-
-### Provider Hierarchy (app/layout.tsx)
-
-**Current Setup**:
-
-```tsx
-<NuqsAdapter>
-  {" "}
-  // nuqs for type-safe URL query params
-  <ThemeProvider // next-themes for dark/light mode
-    attribute="class"
-    defaultTheme="system"
-    enableSystem
-    enableColorScheme
-  >
-    {children}
-    <Toaster duration={2000} /> // Sonner toast notifications
-  </ThemeProvider>
-</NuqsAdapter>
+describe('Component', () => {
+  it('should render correctly', () => {
+    render(<Component />);
+    expect(screen.getByRole('button')).toBeInTheDocument();
+  });
+});
 ```
 
-**Font**: Manrope from Google Fonts (variable font, latin subset)
-
-Note: Better Auth does not require a React context provider. Authentication state is managed via cookies and the Data Access Layer.
-
-### URL State Management with nuqs
-
-The app uses `nuqs` (v2.8.6) for type-safe URL query parameter management:
-
-```tsx
-import { useQueryState, parseAsString, parseAsArrayOf } from "nuqs";
-
-// Single query param
-const [search, setSearch] = useQueryState(
-  "search",
-  parseAsString.withDefault(""),
-);
-
-// Array query param (for tags)
-const [tags, setTags] = useQueryState(
-  "tags",
-  parseAsArrayOf(parseAsString).withDefault([]),
-);
-
-// Update URL with new value
-setSearch("my search query"); // URL: ?search=my+search+query
-setTags(["tag1", "tag2"]); // URL: ?tags=tag1&tags=tag2
-```
-
-**Important**: All pages that use query params must be wrapped in `NuqsAdapter` (already done in root layout).
-
-### Component Architecture (Atomic Design)
-
-Components are organized by complexity:
-
-- **atoms/**: Single-purpose primitives (Button, Input, Separator, Sonner, etc.)
-  - Button uses CVA (Class Variance Authority) for variants
-  - Most atoms are Radix UI wrappers from shadcn/ui
-  - Sidebar is complex: includes Provider, Context, mobile drawer support, keyboard shortcuts (Cmd/Ctrl+B)
-
-- **molecules/**: Composed components (SearchBar, etc.)
-  - SearchBar: Custom component with icon, uses CSS variables for theming
-
-- **organisms/**: Complex composite components (AppSidebar, Header, etc.)
-
-- **pages/**: Page-level components
-- **templates/**: Layout templates
-
-### Data Access Layer Pattern
-
-**Location**: `lib/dal/`
-
-The app uses a centralized Data Access Layer for server-side operations:
-
-- `auth.ts`: Authentication operations (signIn, signUp, getCurrentUser, etc.)
-- `bookmark.ts`: Bookmark CRUD operations
-- `tags.ts`: Tag operations (getUserTags)
-- `http-client.ts`: HTTP client with error handling and automatic JWT token injection for backend API calls
-
-**Server Actions** (`actions/`):
-
-- `auth.ts`: Auth-related server actions
-- `bookmarks.ts`: Bookmark server actions that call `bookmarkService`
-- `tags.ts`: Tag server actions that call `tagService`
-
-Pattern: Server actions call DAL services, which handle business logic and backend API communication via `httpClient`.
-
-**HTTP Client Architecture** (`lib/dal/http-client.ts`):
-
-- Singleton HTTP client for all backend API communication with Go backend
-- Automatically injects JWT token from `authService.getUserToken()` in `Authorization: Bearer <token>` header
-- Base URL selection based on execution context:
-  - Server-side (SSR/Server Actions): uses `process.env.API_URL`
-  - Client-side (browser): uses `process.env.NEXT_PUBLIC_API_URL`
-- Validates URLs on initialization - throws clear error if malformed
-- Timeout handling (30 seconds default, configurable per request)
-- Custom `HTTPError` class with status, statusText, and URL for detailed error tracking
-- Methods: `get<T>()`, `post<T>()`, `put<T>()`, `patch<T>()`, `delete<T>()`
-- Optional `requireAuth` flag to skip token injection when needed
-- Detailed logging in development mode (requests, responses, errors)
-- Network error detection with helpful messages
-- See `TROUBLESHOOTING.md` for common issues and debugging guide
-
-### Styling System
-
-**Tailwind CSS 4.x with Custom CSS Variables:**
-
-The project uses extensive CSS variables defined in `app/globals.css`:
-
-- **Spacing**: `--spacing-0` through `--spacing-1250` (increments of 50, e.g., spacing-100 = 8px)
-- **Colors**: Dual palettes for light/dark modes
-  - Light: `--neutral-900` (darkest) to `--neutral-0` (white)
-  - Dark: `--neutral-900-dark` to `--neutral-0-dark`
-  - Accents: `--teal-*`, `--red-*`
-
-**Usage Pattern:**
-
-```tsx
-className =
-  "bg-[var(--neutral-800,#4c5c59)] dark:bg-[var(--neutral-800-dark,#001f1f)]";
-```
-
-**cn() Utility** (`lib/utils.ts`): Combines clsx + tailwind-merge for safe class composition:
-
-```tsx
-import { cn } from "@/lib/utils"
-className={cn("base-classes", conditionalClass && "conditional", className)}
-```
-
-### Import Aliases
-
-All imports use `@/` prefix:
-
-```tsx
-import { Button } from "@/components/atoms/button";
-import { authService } from "@/lib/dal/auth";
-import { cn } from "@/lib/utils";
-```
-
-### Validation with Zod
-
-**Schema Location**: `lib/zod/`
-
-Zod schemas are centralized for:
-
-- Authentication forms (`auth.ts`)
-- Bookmark operations
-- Type inference and runtime validation
-
-Pattern: Define schemas in `lib/zod/`, import in server actions and components.
-
-## Key Patterns
-
-### Server vs Client Components
-
-**Server Components (default):**
-
-- Layout, loading, pages
-- Prefer for data fetching and authentication checks
-- Can call `authService.getCurrentUser()` directly
-
-**Client Components (must have `"use client"`):**
-
-- Interactive forms (sign in/sign up, bookmark forms)
-- Components using hooks (useState, useEffect, useTheme, useSession)
-- All Radix UI wrappers (interactive primitives)
-- Sidebar (state management, keyboard shortcuts, responsive behavior)
-
-### Authentication in Components
-
-**Server Components & Server Actions:**
-
-```tsx
-import { authService } from "@/lib/dal/auth";
-
-export default async function ProtectedPage() {
-  const session = await authService.getCurrentUser();
-
-  if (!session?.user) {
-    redirect("/signin");
-  }
-
-  return <div>Hello {session.user.name}</div>;
-}
-```
-
-**Client Components:**
-
-```tsx
-"use client";
-import { useSession } from "@/lib/auth/better-auth-client";
-
-export function ProtectedComponent() {
-  const { data: session, isPending } = useSession();
-
-  if (isPending) return <div>Loading...</div>;
-  if (!session?.user) return null;
-
-  return <div>Hello {session.user.name}</div>;
-}
-```
-
-**Server Actions Pattern:**
-
-```tsx
-"use server";
-
-export async function myAction() {
-  const userData = await authService.getCurrentUser();
-
-  if (!userData?.user?.id) {
-    throw new Error("User not authenticated");
-  }
-
-  // Use userData.user.id for operations
-}
-```
-
-### Component Props Pattern
-
-Components extend native HTML element props:
-
-```tsx
-export interface SearchBarProps extends Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  "size"
-> {
-  containerClassName?: string;
-}
-```
-
-Radix UI components support `asChild` for polymorphism:
-
-```tsx
-<Button asChild>
-  <a href="/profile">Profile</a>
-</Button>
-```
-
-### Error Handling Pattern
-
-All server actions follow a consistent error handling pattern:
-
-```tsx
-"use server";
-
-export async function myServerAction() {
-  try {
-    // 1. Validate authentication first
-    const userData = await authService.getCurrentUser();
-    if (!userData?.user?.id) {
-      return { success: false, error: "User not authenticated" };
-    }
-
-    // 2. Perform operation
-    const result = await someService.doSomething(userData.user.id);
-
-    return { success: true, data: result };
-  } catch (error) {
-    // 3. Handle HTTPError specifically (from backend calls)
-    if (error instanceof HTTPError) {
-      console.error("HTTP Error:", {
-        status: error.status,
-        statusText: error.statusText,
-        url: error.url,
-        message: error.message,
-      });
-      return { success: false, error: error.message, status: error.status };
-    }
-
-    // 4. Handle unexpected errors
-    console.error("Unexpected error:", error);
-    return { success: false, error: "An unexpected error occurred" };
-  }
-}
-```
-
-**Never call `httpClient` or DAL services directly from client components.** Always use server actions as the interface.
-
-### Data Flow Architecture
-
-```
-Client Component (Browser)
-    ↓ calls
-Server Action (Next.js Server)
-    ↓ calls
-DAL Service (lib/dal/)
-    ↓ calls
-HTTP Client (lib/dal/http-client.ts)
-    ↓ HTTP request
-Go Backend API (Railway)
-    ↓ queries
-PostgreSQL + Redis
-```
-
-**Key Rules**:
-
-1. Client components can ONLY call server actions
-2. Server actions can call DAL services
-3. DAL services use HTTP client to communicate with Go backend
-4. Never skip layers (e.g., client → DAL directly is forbidden)
-
-## Project-Specific Notes
-
-### Bookmark Manager Features
-
-The app is being built to support:
-
-- Add/edit bookmarks with title, description, URL, tags
-- Search by title, filter by tags
-- Archive/unarchive, pin/unpin bookmarks
-- Sort by recently added, recently visited, most visited
-- View count tracking, last visited tracking
-- Automatic favicon extraction from URLs
-- Dark/light theme toggle
-
-### Current State
-
-- Authentication UI and flows are implemented (Better Auth with Google OAuth, email/password, anonymous)
-- Database schema defined with Drizzle ORM for Better Auth tables
-- Component library foundation is complete (Radix UI + shadcn/ui)
-- Sidebar with mobile drawer support is functional
-- SearchBar molecule component exists in `components/molecules/`
-- Email templates set up with React Email and Resend
-- Bookmark management features are in development
-- Backend communication layer via HTTP client in DAL
-
-### Important Files
-
-- `proxy.ts`: Route protection proxy (Next.js 16 convention, replaces deprecated `middleware.ts`)
-- `app/globals.css`: All CSS variable definitions for light/dark themes
-- `components.json`: shadcn/ui configuration (style: new-york, RSC enabled, ui alias to atoms/)
-- `lib/auth/better-auth.ts`: Server auth configuration
-- `lib/auth/better-auth-client.ts`: Client auth bindings (client-side only)
-- `lib/dal/auth.ts`: Authentication data access layer
-- `lib/dal/http-client.ts`: HTTP client with automatic JWT token injection
-- `lib/dal/bookmark.ts`: Bookmark service that communicates with Go backend
-- `lib/dal/tags.ts`: Tag service
-- `lib/db/schema.ts`: Drizzle database schema (Better Auth tables only)
-- `drizzle.config.ts`: Drizzle Kit configuration
-- `lib/zod/auth.ts`: Authentication validation schemas
-- `lib/zod/bookmark.ts`: Bookmark validation schemas
-- `actions/bookmarks.ts`: Server actions for bookmark operations
-- `actions/auth.ts`: Server actions for authentication
-- `TROUBLESHOOTING.md`: Detailed guide for debugging backend fetch errors
-
-## Critical Known Issues
-
-### 1. Server Actions Need Implementation (URGENT)
-
-`createBookmarkAction` and `updateBookmarkAction` in `actions/bookmarks.ts` are currently empty stubs that always return success without performing any operation.
-
-### 2. Backend Architecture (IMPORTANT)
-
-- This Next.js app is a **frontend-only application** for UI and authentication
-- All bookmark data is stored in a separate **Go backend** (deployed on Railway)
-- The Go backend uses:
-  - PostgreSQL (separate from Neon) for bookmark storage
-  - Redis for caching
-  - JWT token validation (tokens from Better Auth)
-- **CRITICAL**: Do NOT create bookmark tables in the Drizzle schema
-  - `lib/db/schema.ts` only contains Better Auth tables (user, session, account, verification, jwks)
-  - Bookmark operations must ALWAYS go through `httpClient` to the Go API
-  - Never query bookmark data from the Neon database directly
-
-## Frontend Mentor Challenge
-
-This is a premium Frontend Mentor challenge. **Do not share design files publicly.** The `.gitignore` is configured to prevent accidental upload of design assets.
-
-User requirements from the challenge:
-
-- Add new bookmarks with metadata (title, description, URL, tags, favicon)
-- View all bookmarks with details (favicon, view count, last visited, date added)
-- Search bookmarks by title
-- Filter bookmarks by tags (single or multiple)
-- Archive/unarchive bookmarks
-- Pin/unpin bookmarks
-- Edit existing bookmarks
-- Delete bookmarks
-- Copy URLs to clipboard
-- Visit bookmarked websites
-- Sort by: recently added, recently visited, most visited
-- Light/dark theme toggle
-- Responsive design with hover/focus states
-
-## Best Practices for This Project
-
-### 1. Component Creation
-
-**Use "use client" sparingly** - only when absolutely necessary:
-
-- Forms with interactive state
-- Components using browser APIs (localStorage, window, etc.)
-- Components using client-side hooks (useState, useEffect, etc.)
-- Radix UI components (they require interactivity)
-
-**Prefer Server Components** for:
-
-- Data fetching
-- Authentication checks
-- Static content
-- SEO-critical pages
-
-### 2. Authentication Patterns
-
-**In Server Components/Actions**:
-
-```tsx
-const userData = await authService.getCurrentUser();
-if (!userData?.user?.id) {
-  // Handle unauthenticated state
-}
-```
-
-**In Client Components**:
-
-```tsx
-const { data: session, isPending } = useSession();
-if (isPending) return <LoadingSpinner />;
-if (!session?.user) return null;
-```
-
-### 3. Styling Conventions
-
-- Use `cn()` utility for conditional classes
-- Prefer CSS variables over hardcoded colors: `bg-[var(--neutral-800)]`
-- Include dark mode variants: `dark:bg-[var(--neutral-800-dark)]`
-- Follow spacing scale: `--spacing-{0,50,100,150,...,1250}`
-- Use Tailwind utilities, not inline styles
-
-### 4. Type Safety
-
-- Always define Zod schemas in `lib/zod/` for validation
-- Infer TypeScript types from Zod schemas: `type MyType = z.infer<typeof MySchema>`
-- Use TypeScript strict mode (already configured)
-- Export types from DAL services for reuse
-
-### 5. Environment Variables
-
-- Server-only vars: prefix with nothing (e.g., `API_URL`, `DATABASE_URL`)
-- Client-accessible vars: prefix with `NEXT_PUBLIC_` (e.g., `NEXT_PUBLIC_API_URL`)
-- Never expose secrets to the client
-- Always use HTTPS URLs in production (validated by HTTP client)
-
-### 6. File Naming Conventions
-
-- Components: PascalCase (e.g., `BookmarkCard.tsx`)
-- Utilities/services: camelCase (e.g., `auth.ts`, `http-client.ts`)
-- Server actions: camelCase with `Action` suffix (e.g., `getBookmarksAction`)
-- Types/interfaces: PascalCase with descriptive names
-- Directories: kebab-case or camelCase (existing pattern varies)
-
-### 7. Import Organization
-
-Organize imports in this order:
-
-1. React and Next.js
-2. Third-party libraries
-3. Internal aliases (@/components, @/lib, etc.)
-4. Relative imports
-5. Types (if separate from values)
-
-Example:
-
-```tsx
-import { useState } from "react";
-import { redirect } from "next/navigation";
-import { Button } from "@/components/atoms/button";
-import { authService } from "@/lib/dal/auth";
-import { MyLocalComponent } from "./my-component";
-import type { User } from "@/lib/types";
-```
+## CI/CD
+
+GitHub Actions workflow (`.github/workflows/test.yml`) runs on every push/PR to main:
+1. Lint check
+2. Unit tests
+3. Production build
+
+**All checks must pass before merging.**
+
+## Important Notes
+
+### Path Aliases
+- Use `@/` for all imports: `import { Button } from "@/components/atoms/button"`
+- Configured in `tsconfig.json` and `jest.config.ts`
+
+### Next.js 16 App Router
+- This project uses **App Router**, not Pages Router
+- Server Components by default (add `"use client"` when needed)
+- Server Actions for mutations (no separate API routes needed)
+- Route groups: `(auth)` and `(dashboard)` for layout organization
+
+### Styling
+- **Tailwind CSS 4** with custom configuration
+- **shadcn/ui** components in `components/atoms/`
+- **Radix UI** for complex primitives (Dialog, Dropdown, etc.)
+- Dark mode via `next-themes` (ThemeProvider in root layout)
+
+### State Management
+- **URL state**: Use `nuqs` for search/filter state in URLs
+- **Server state**: Server Components fetch data directly, no client-side state needed
+- **Client state**: React hooks for UI-only state
+- **No global state library** (Redux, Zustand, etc.)
+
+### Better Auth Specifics
+- Anonymous users get a session without email/password
+- When anonymous user signs up/signs in, `onLinkAccount` callback migrates their data
+- JWT tokens are auto-rotated (30-day interval, 7-day grace period)
+- Session expiry: 7 days (matches backend Go service)
+
+### Common Pitfalls
+1. **Don't bypass the DAL**: Always use services from `lib/dal/`, never fetch() directly
+2. **Don't mix server/client code**: Keep Server Components and Client Components separate
+3. **Don't forget validation**: Always validate with Zod schemas from `lib/zod/`
+4. **Don't use `db:push` in production**: Always use migrations (`db:generate` + `db:migrate`)
+5. **Don't hardcode URLs**: Use `API_URL` or `NEXT_PUBLIC_API_URL` from env
