@@ -2,7 +2,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
-import { useSearch } from "@/hooks/use-search";
+import { useSearch } from "@/lib/hooks/use-search";
 
 export interface SearchBarProps extends Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
