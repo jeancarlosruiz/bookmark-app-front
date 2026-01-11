@@ -62,7 +62,7 @@ export const ResetPasswordEmail = ({
             <Section style={warningBox}>
               <Text style={warningText}>
                 ⚠️ <strong>Security Notice:</strong> This link will expire in{' '}
-                <strong>1 hour</strong> for your security. If you didn't request
+                <strong>1 hour</strong> for your security. If you didn&apos;t request
                 this password reset, please ignore this email or contact support if
                 you have concerns.
               </Text>
@@ -72,7 +72,7 @@ export const ResetPasswordEmail = ({
 
             {/* Alternative link */}
             <Text style={smallText}>
-              If the button doesn't work, copy and paste this link into your
+              If the button doesn&apos;t work, copy and paste this link into your
               browser:
             </Text>
             <Link href={resetUrl} style={link}>
@@ -97,7 +97,7 @@ export const ResetPasswordEmail = ({
           <Section style={footer}>
             <Hr style={hr} />
             <Text style={footerText}>
-              If you didn't request a password reset, please ignore this email.
+              If you didn&apos;t request a password reset, please ignore this email.
               Your password will remain unchanged.
             </Text>
             <Text style={footerCopyright}>

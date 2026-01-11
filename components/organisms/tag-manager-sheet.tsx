@@ -156,12 +156,6 @@ export function TagManagerSheet({ tags, trigger }: TagManagerSheetProps) {
   const isEditing = (tagId: number) =>
     state.status === "editing" && state.tagId === tagId;
 
-  React.useEffect(() => {
-    if (state.status === "processing") {
-      executeOperation(state.operation, state.payload);
-    }
-  }, [state]);
-
   const executeOperation = async (
     operation: OPERATIONS,
     payload: { tagId: number; newValue?: string },
@@ -211,6 +205,12 @@ export function TagManagerSheet({ tags, trigger }: TagManagerSheetProps) {
         break;
     }
   };
+
+  React.useEffect(() => {
+    if (state.status === "processing") {
+      executeOperation(state.operation, state.payload);
+    }
+  }, [state]);
 
   return (
     <>

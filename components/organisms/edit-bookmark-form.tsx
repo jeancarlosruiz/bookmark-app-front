@@ -187,7 +187,7 @@ const FormContent = ({
       hasHandledStatusRef.current = true;
       toast.error(actionState.serverError);
     }
-  }, [actionState.status, actionState.serverError]);
+  }, [actionState.status, actionState.serverError, setDialogOpen]);
 
   // Effect: fetch metadata only when URL blur occurs (not on every keystroke)
   useEffect(() => {
@@ -212,6 +212,7 @@ const FormContent = ({
         });
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     formState.urlToFetch,
     formState.lastFetchedUrl,

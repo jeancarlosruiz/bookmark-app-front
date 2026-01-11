@@ -3,7 +3,7 @@
 import { Checkbox } from "@/components/atoms/checkbox";
 import { Badge } from "@/components/atoms/badge";
 import { TagsType } from "@/lib/zod/tag";
-import { useState, useEffect, useTransition } from "react";
+import { useMemo, useTransition } from "react";
 import { EmptyTags } from "./empty-tags";
 import { ScrollArea } from "@/components/atoms/scroll-area";
 import { TagManagerSheet } from "@/components/organisms/tag-manager-sheet";
@@ -29,8 +29,8 @@ const SidebarTagItem = ({ tags = [] }: SidebarTagItemProps) => {
 
   const { setSearch } = useSearch();
 
-  // Initialize tags from URL if they exist
-  const [tagsArr, setTagsArr] = useState(() => {
+  // Derive tags state from URL and props
+  const tagsArr = useMemo(() => {
     const safeTags = Array.isArray(tags) ? tags : [];
     const urlTags = tagsQuery.filter(Boolean) || [];
 
@@ -38,20 +38,7 @@ const SidebarTagItem = ({ tags = [] }: SidebarTagItemProps) => {
       ...t,
       isChecked: urlTags.includes(t.title),
     }));
-  });
-
-  // Sync local state when URL changes or tags reload
-  useEffect(() => {
-    const safeTags = Array.isArray(tags) ? tags : [];
-    const urlTags = tagsQuery.filter(Boolean) || [];
-
-    setTagsArr(
-      safeTags.map((t) => ({
-        ...t,
-        isChecked: urlTags.includes(t.title),
-      })),
-    );
-  }, [tagsQuery, tags]);
+  }, [tags, tagsQuery]);
 
   const haveTagsChecked = tagsArr.some((t) => t.isChecked === true);
 
@@ -75,8 +62,6 @@ const SidebarTagItem = ({ tags = [] }: SidebarTagItemProps) => {
       return t;
     });
 
-    setTagsArr(updatedTags);
-
     const selectedTags = updatedTags
       .filter((t) => t.isChecked)
       .map((t) => t.title);
@@ -85,12 +70,6 @@ const SidebarTagItem = ({ tags = [] }: SidebarTagItemProps) => {
   };
 
   const resetIsChecked = () => {
-    const resetTags = tagsArr.map((t) => ({
-      ...t,
-      isChecked: false,
-    }));
-
-    setTagsArr(resetTags);
     updateURL([]);
   };
 
