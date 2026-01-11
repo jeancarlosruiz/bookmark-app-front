@@ -5,7 +5,7 @@ export const AUTH_SCHEMA = z.object({
     .string({ error: "Name is required" })
     .min(1, "Name is required")
     .min(2, "Name must be at least 2 characters"),
-  email: z.string({ error: "Email is required" }).min(1, "Email is required"),
+  email: z.email({ error: "Invalid email format" }).min(1, "Email is required"),
   signup_password: z
     .string({ error: "Password is required" })
     .min(1, "Password is required")
@@ -24,12 +24,7 @@ export const SIGNUP_SCHEMA = AUTH_SCHEMA.omit({
   signin_password: true,
 });
 
-export const FORGOT_PASSWORD_SCHEMA = z.object({
-  email: z
-    .string({ error: "Email is required" })
-    .min(1, "Email is required")
-    .email("Please enter a valid email address"),
-});
+export const FORGOT_PASSWORD_SCHEMA = AUTH_SCHEMA.pick({ email: true });
 
 export const RESET_PASSWORD_SCHEMA = z
   .object({

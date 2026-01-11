@@ -25,7 +25,7 @@ const BookmarkListHeader = React.forwardRef<
     >
       {search ? (
         <h1 className="flex-1 font-bold text-[24px] leading-[1.4] text-[var(--neutral-900,#051513)] dark:text-white">
-          Results for: "{search}"
+          Results for: &quot;{search}&quot;
         </h1>
       ) : (
         <h1 className="flex-1 font-bold text-[24px] leading-[1.4] text-[var(--neutral-900,#051513)] dark:text-white">

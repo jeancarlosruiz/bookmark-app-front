@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useReducer, useEffect } from "react";
+import { forwardRef, useReducer, useEffect, useCallback } from "react";
 import {
   ExternalLink,
   Copy,
@@ -165,12 +165,6 @@ const BookmarkActionsDropdown = forwardRef<
   const [state, dispatch] = useReducer(reducer, { status: "idle" });
   const isDisabled = state.status === "processing";
 
-  useEffect(() => {
-    if (state.status === "processing") {
-      executeOperation(state.operation);
-    }
-  }, [state]);
-
   const executeOperation = async (operation: OPERATIONS) => {
     switch (operation) {
       case OPERATIONS.PIN:
@@ -274,6 +268,13 @@ const BookmarkActionsDropdown = forwardRef<
         break;
     }
   };
+
+  useEffect(() => {
+    if (state.status === "processing") {
+      executeOperation(state.operation);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
 
   // Action handlers separated by item
   const handleVisit = async (event: Event) => {

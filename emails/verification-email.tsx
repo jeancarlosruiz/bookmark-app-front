@@ -42,7 +42,7 @@ export const VerificationEmail = ({
             <Text style={greeting}>Hi {userName},</Text>
 
             <Text style={paragraph}>
-              Thanks for signing up! We're excited to have you on board.
+              Thanks for signing up! We&apos;re excited to have you on board.
             </Text>
 
             <Text style={paragraph}>
@@ -66,7 +66,7 @@ export const VerificationEmail = ({
 
             {/* Alternative link */}
             <Text style={smallText}>
-              If the button doesn't work, copy and paste this link into your
+              If the button doesn&apos;t work, copy and paste this link into your
               browser:
             </Text>
             <Link href={verificationUrl} style={link}>
@@ -78,7 +78,7 @@ export const VerificationEmail = ({
           <Section style={footer}>
             <Hr style={hr} />
             <Text style={footerText}>
-              If you didn't create an account with Bookmark Manager, you can
+              If you didn&apos;t create an account with Bookmark Manager, you can
               safely ignore this email.
             </Text>
             <Text style={footerCopyright}>

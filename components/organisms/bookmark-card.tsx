@@ -1,10 +1,8 @@
 import * as React from "react";
-import { MoreVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BookmarkCardHeader } from "@/components/molecules/bookmark-card-header";
 import { BookmarkCardFooter } from "@/components/molecules/bookmark-card-footer";
 import { Tag } from "@/components/atoms/tag";
-import { IconButton } from "@/components/atoms/icon-button";
 import { BookmarkActionsDropdown } from "@/components/organisms/bookmark-actions-dropdown";
 import { BookmarkType } from "@/lib/zod/bookmark";
 
