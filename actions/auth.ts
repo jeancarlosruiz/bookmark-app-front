@@ -7,7 +7,6 @@ import {
   RESET_PASSWORD_SCHEMA,
 } from "@/lib/zod/auth";
 import { zodFlattenError } from "@/lib/zod/utils";
-import { redirect } from "next/navigation";
 import { authService } from "@/lib/dal/auth";
 
 export type SIGNIN_FORM_STATE = {

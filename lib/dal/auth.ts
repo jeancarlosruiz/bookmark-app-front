@@ -103,8 +103,4 @@ export const authService = {
       return null;
     }
   },
-
-  async hasUserCookies(req: NextRequest) {
-    return getSessionCookie(req);
-  },
 };
