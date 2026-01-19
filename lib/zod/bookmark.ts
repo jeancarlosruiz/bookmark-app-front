@@ -28,7 +28,8 @@ export const CREATE_BOOKMARK_SCHEMA = z.object({
     .string({ error: "At least one tag is required" })
     .min(1, { error: "At least one tag is required" })
     .transform((tags) => {
-      return tags.split(",");
+      // Split by comma, semicolon, or pipe
+      return tags.split(/[,;|]/);
     }),
   favicon: z.string().optional(),
 });
