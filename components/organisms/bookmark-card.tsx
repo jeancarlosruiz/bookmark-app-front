@@ -36,7 +36,7 @@ const BookmarkCard = React.forwardRef<HTMLDivElement, BookmarkCardProps>(
         {/* Container */}
         <div className="flex flex-col gap-4 items-start p-[var(--spacing-200,16px)] rounded-[10px] w-full flex-1">
           {/* Header */}
-          <div className="flex gap-[var(--spacing-150,12px)] items-start w-full">
+          <div className="flex justify-between gap-[var(--spacing-150,12px)] w-full">
             <BookmarkCardHeader logo={favicon} title={title} url={url} />
             <BookmarkActionsDropdown bookmark={bookmark} />
           </div>

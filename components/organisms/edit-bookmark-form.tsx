@@ -15,6 +15,9 @@ import { BookmarkType } from "@/lib/zod/bookmark";
 import { toast } from "sonner";
 import TagInput from "./tag-input";
 
+// Ideas:
+// Si se cambia la url al editar advertir que el conteo de visitas sera reseado a 0
+
 interface EditBookmarkFormProps {
   dialogOpen: boolean;
   setDialogOpen: (open: boolean) => void;
@@ -160,34 +163,51 @@ const FormContent = ({
     },
   };
 
+  const handleAction = async (
+    prevState: UPDATE_BOOKMARK_STATE,
+    formData: FormData,
+  ): Promise<UPDATE_BOOKMARK_STATE> => {
+    const result = await updateBookmarkAction(prevState, formData);
+
+    // Handle success/error here instead of useEffect
+    if (result.status === "success") {
+      toast.success("Bookmark updated successfully.");
+      setDialogOpen(false);
+    } else if (result.status === "error" && result.serverError) {
+      toast.error(result.serverError);
+    }
+
+    return result;
+  };
+
   // useActionState for form submission and validation
   const [actionState, formAction, isPending] = useActionState(
-    updateBookmarkAction,
+    handleAction,
     initialActionState,
   );
 
-  const hasHandledStatusRef = useRef(false);
-
-  // Effect: handle success/error toasts
-  useEffect(() => {
-    // Reset the ref when status changes to a new state
-    if (actionState.status !== "idle") {
-      hasHandledStatusRef.current = false;
-    }
-
-    if (actionState.status === "success" && !hasHandledStatusRef.current) {
-      hasHandledStatusRef.current = true;
-      toast.success("Bookmark updated successfully.");
-      setDialogOpen(false);
-    } else if (
-      actionState.status === "error" &&
-      actionState.serverError &&
-      !hasHandledStatusRef.current
-    ) {
-      hasHandledStatusRef.current = true;
-      toast.error(actionState.serverError);
-    }
-  }, [actionState.status, actionState.serverError, setDialogOpen]);
+  // const hasHandledStatusRef = useRef(false);
+  //
+  // // Effect: handle success/error toasts
+  // useEffect(() => {
+  //   // Reset the ref when status changes to a new state
+  //   if (actionState.status !== "idle") {
+  //     hasHandledStatusRef.current = false;
+  //   }
+  //
+  //   if (actionState.status === "success" && !hasHandledStatusRef.current) {
+  //     hasHandledStatusRef.current = true;
+  //     setDialogOpen(false);
+  //     toast.success("Bookmark updated successfully.");
+  //   } else if (
+  //     actionState.status === "error" &&
+  //     actionState.serverError &&
+  //     !hasHandledStatusRef.current
+  //   ) {
+  //     hasHandledStatusRef.current = true;
+  //     toast.error(actionState.serverError);
+  //   }
+  // }, [actionState.status, actionState.serverError, setDialogOpen]);
 
   // Effect: fetch metadata only when URL blur occurs (not on every keystroke)
   useEffect(() => {

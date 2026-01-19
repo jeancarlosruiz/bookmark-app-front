@@ -323,7 +323,7 @@ const BookmarkActionsDropdown = forwardRef<
           dispatch({ type: open ? "OPEN_DROPDOWN" : "CLOSE_DROPDOWN" })
         }
       >
-        <DropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild className="shrink-0">
           <IconButton size="sm" variant="default" aria-label="Options">
             <MoreVertical className="size-5" />
           </IconButton>
