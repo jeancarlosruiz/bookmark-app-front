@@ -1,5 +1,3 @@
-# Frontend Mentor - Bookmark manager app
-
-![Design preview for the Bookmark manager app coding challenge](./preview.jpg)
+# Frontend Mentor - Bookmark Manager App
 
 _[Jean Ruiz's portfolio](www.jeanruiz.dev)_: Para ver los detalles del proyecto.
