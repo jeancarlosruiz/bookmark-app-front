@@ -4,7 +4,7 @@ import DialogContainer from "../molecules/dialog-container";
 import { Input } from "../atoms/input";
 import { Button } from "../atoms/button";
 import { Textarea } from "../atoms/textarea";
-import { useActionState, useEffect, useReducer, useRef } from "react";
+import { useActionState, useEffect, useReducer } from "react";
 import {
   UPDATE_BOOKMARK_STATE,
   updateBookmarkAction,
@@ -185,29 +185,6 @@ const FormContent = ({
     handleAction,
     initialActionState,
   );
-
-  // const hasHandledStatusRef = useRef(false);
-  //
-  // // Effect: handle success/error toasts
-  // useEffect(() => {
-  //   // Reset the ref when status changes to a new state
-  //   if (actionState.status !== "idle") {
-  //     hasHandledStatusRef.current = false;
-  //   }
-  //
-  //   if (actionState.status === "success" && !hasHandledStatusRef.current) {
-  //     hasHandledStatusRef.current = true;
-  //     setDialogOpen(false);
-  //     toast.success("Bookmark updated successfully.");
-  //   } else if (
-  //     actionState.status === "error" &&
-  //     actionState.serverError &&
-  //     !hasHandledStatusRef.current
-  //   ) {
-  //     hasHandledStatusRef.current = true;
-  //     toast.error(actionState.serverError);
-  //   }
-  // }, [actionState.status, actionState.serverError, setDialogOpen]);
 
   // Effect: fetch metadata only when URL blur occurs (not on every keystroke)
   useEffect(() => {
