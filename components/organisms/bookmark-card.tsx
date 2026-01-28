@@ -5,6 +5,7 @@ import { BookmarkCardFooter } from "@/components/molecules/bookmark-card-footer"
 import { Tag } from "@/components/atoms/tag";
 import { BookmarkActionsDropdown } from "@/components/organisms/bookmark-actions-dropdown";
 import { BookmarkType } from "@/lib/zod/bookmark";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../atoms/tooltip";
 
 export interface BookmarkCardProps {
   bookmark: BookmarkType;
@@ -24,6 +25,11 @@ const BookmarkCard = React.forwardRef<HTMLDivElement, BookmarkCardProps>(
       createdAt,
       isArchived,
     } = bookmark;
+
+    const MAX_TAGS = 3;
+    const visibleTags = tags.slice(0, MAX_TAGS);
+    const remaining = tags.length - MAX_TAGS;
+    const remainingTags = tags.slice(MAX_TAGS);
 
     return (
       <article
@@ -45,17 +51,37 @@ const BookmarkCard = React.forwardRef<HTMLDivElement, BookmarkCardProps>(
           <div className="bg-[var(--neutral-300,#dde9e7)] dark:bg-[var(--neutral-600-dark,#002e2d)] h-px w-full" />
 
           {/* Description */}
-          <p className="flex-1 font-medium text-[14px] leading-[1.5] tracking-[0.14px] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] w-full">
+          <p className="flex-1 font-medium text-[14px] leading-[1.5] tracking-[0.14px] text-[var(--neutral-800,#4c5c59)] dark:text-[var(--neutral-100-dark,#b1b9b9)] w-full line-clamp-4">
             {description}
           </p>
 
           {/* Tags */}
           <div className="flex gap-[var(--spacing-100,8px)] items-start w-full overflow-x-auto scrollbar-hide">
-            {tags.map((tag) => (
+            {visibleTags.map((tag) => (
               <Tag key={tag.id} className="flex-shrink-0">
                 {tag.title}
               </Tag>
             ))}
+
+            {remaining > 0 && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Tag className="flex-shrink-0 bg-muted text-muted-foreground">
+                    +{remaining}
+                  </Tag>
+                </TooltipTrigger>
+                <TooltipContent className="flex gap-2" side="bottom">
+                  {remainingTags.map((t) => (
+                    <Tag
+                      key={t.id}
+                      className="flex-shrink-0 border border-black/5"
+                    >
+                      {t.title}
+                    </Tag>
+                  ))}
+                </TooltipContent>
+              </Tooltip>
+            )}
           </div>
         </div>
 
