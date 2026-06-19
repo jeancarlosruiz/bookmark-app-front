@@ -73,5 +73,9 @@
       "@types/react": "19.2.7",
       "@types/react-dom": "19.2.3"
     }
+  },
+  "packageManager": "pnpm@10.13.1",
+  "engines": {
+    "node": ">=22.13.0"
   }
 }
