@@ -168,7 +168,7 @@ const LoginForm = () => {
           onClick={handleGuestMode}
           disabled={isGuestLoading || isPending || isGoogleLoading}
         >
-          {isGuestLoading ? "Entering..." : "Guest mode"}
+          {isGuestLoading ? "Entering..." : "Continue as guest"}
         </Button>
       </form>
 
